@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b12">
+<title>Mansion Millions</title>
+<style>
+:root{--ink:#f7f1e4;--muted:#c9d4dc;--gold:#e7c56a;--gold2:#fff1c2;--line:#e7c56a44}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;color:var(--ink);font:16px/1.5 Inter,system-ui,-apple-system,sans-serif;background:#070b12}
+button,input{font:inherit}button{cursor:pointer}
+.sky{position:fixed;inset:0;background:#07101a url("mansion-bg.jpg") center/cover no-repeat;z-index:0;transition:filter .8s ease, transform 1.2s ease}
+.sky.up{filter:saturate(.7) brightness(.8);transform:scale(1.04)}
+.sky:after{content:"";position:absolute;inset:0;background:linear-gradient(#070b12d0,#070b1288 28%,#070b12ee);transition:background .8s ease}
+.veil{position:fixed;inset:0;z-index:4;background:#070b12;opacity:0;pointer-events:none;transition:opacity .55s ease}
+.veil.on{opacity:1}
+.wrap{position:relative;z-index:1;width:min(1080px,94vw);margin:auto;padding:16px 0 64px}
+.top{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:18px;background:#0b121ccc;backdrop-filter:blur(10px)}
+.mark{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--gold);color:var(--gold2);font:700 18px Georgia,serif}
+.brand{font:700 20px Georgia,serif}.brand small{display:block;letter-spacing:.16em;font:700 10px Inter,sans-serif;color:var(--gold)}
+.hud{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{border:1px solid var(--line);background:#0c1420cc;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;transition:background .3s ease}
+.screen{display:none;margin-top:16px;animation:rise .55s ease}
+.screen.on{display:block}
+.panel{border:1px solid var(--line);border-radius:24px;background:#0c1522e8;backdrop-filter:blur(8px);padding:18px;transition:transform .45s ease, opacity .45s ease}
+.card,.room,.asset,.btn,.choice,.scene{transition:transform .35s ease, opacity .35s ease, outline-color .35s ease, background .35s ease}
+.card:hover,.room:hover{transform:translateY(-3px)}
+.scene{margin-top:14px;border:1px solid var(--line);border-radius:24px;background:#0b121cf2;padding:16px;animation:rise .5s ease}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@media(prefers-reduced-motion:reduce){.screen,.scene,.card,.room{animation:none;transition:none}.sky{transition:none}}
+.top{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:18px;background:#0b121ccc;backdrop-filter:blur(10px)}
+.mark{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--gold);color:var(--gold2);font:700 18px Georgia,serif}
+.brand{font:700 20px Georgia,serif}.brand small{display:block;letter-spacing:.16em;font:700 10px Inter,sans-serif;color:var(--gold)}
+.hud{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{border:1px solid var(--line);background:#0c1420cc;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}
+.screen{display:none;margin-top:16px}.screen.on{display:block}
+.panel{border:1px solid var(--line);border-radius:24px;background:#0c1522e8;backdrop-filter:blur(8px);padding:18px}
+h1{font:800 clamp(36px,7vw,68px)/.92 Georgia,serif;margin:8px 0}
+h2{font:700 28px Georgia,serif;margin:0 0 6px}
+.ey{color:var(--gold2);letter-spacing:.18em;font-size:11px;font-weight:900}
+.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.card,.room,.asset{text-align:left;border:1px solid var(--line);border-radius:18px;background:linear-gradient(165deg,#17283acc,#0c141ecc);padding:14px;color:inherit}
+.card.on,.room.on{outline:2px solid var(--gold)}
+.card h3,.room h3,.asset h3{margin:6px 0 4px;font:700 22px Georgia,serif}
+.btn{border:0;border-radius:999px;padding:12px 16px;background:linear-gradient(130deg,#fff1c2,#c9963a);color:#1a1408;font-weight:900}
+.btn.ghost{background:#132033cc;color:#fff;border:1px solid #ffffff2e}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.scene{margin-top:14px;border:1px solid var(--line);border-radius:24px;background:#0b121cf2;padding:16px}
+.say{border-left:3px solid var(--gold);padding:4px 0 4px 12px;margin:10px 0}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.choice{min-height:52px;border-radius:14px;border:1px solid #e4c98a;background:#fff8ea;color:#1c2832;font-weight:800}
+.choice.bad{animation:shake .35s}
+.cipher{font:800 26px ui-monospace,monospace;letter-spacing:.12em;color:#ffe7a2;background:#0a1624;border-radius:14px;padding:12px;margin:10px 0}
+input.txt{width:100%;min-height:48px;border-radius:12px;border:1px solid #ffffff33;background:#081018;color:#fff;padding:10px}
+.bar{height:8px;background:#1c2a3a;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,#e7c56a,#fff1c2)}
+.stars,.lamps{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.star,.lamp{width:62px;height:62px;border-radius:50%;border:1px solid #ffe7a2;background:#102033;color:#ffe7a2;font-weight:900}
+.star.on,.lamp.on{background:#ffe7a2;color:#1b1408}
+.satchel{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:12px;font-weight:800;border:1px solid var(--line);border-radius:999px;padding:4px 8px;background:#101a28}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#fff3c4;color:#23190a;padding:10px 14px;border-radius:999px;font-weight:900;z-index:5;max-width:90vw;text-align:center}
+.clock{width:92px;height:92px;border-radius:50%;border:2px solid var(--gold);position:relative;background:#0c1624;flex:none}
+.clock i,.clock b{position:absolute;left:50%;bottom:50%;transform-origin:50% 100%;background:var(--gold2);border-radius:2px}
+.clock i{width:2px;height:28px}
+.clock b{width:3px;height:20px;background:var(--gold)}
+.clock s{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--gold2)}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@media(max-width:800px){.grid,.choices{grid-template-columns:1fr}.hud{display:none}}
+</style>
+</head>
+<body>
+<div class="sky" id="sky"></div>
+<div class="veil" id="veil"></div>
+<div class="wrap">
+  <header class="top">
+    <div class="mark">M</div>
+    <div class="brand">Mansion Millions<small>A NIGHT IN THE HOUSE</small></div>
+    <div class="hud" id="hud"></div>
+  </header>
+  <section class="screen on" id="home"></section>
+  <section class="screen" id="play"></section>
+  <section class="screen" id="vault"></section>
+  <section class="screen" id="album"></section>
+</div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const KEY="mansion-millions-shared-state-v1";
+const CAST=[
+  {id:"jason",name:"Jason",icon:"🧭",role:"Director",skill:"Names the door you already tried.",line:"Every door is a maybe. Pick one."},
+  {id:"juno",name:"Juno",icon:"🐕",role:"Tracker",skill:"Flashes the trail before it hides.",line:"I found pawprints. Come on."},
+  {id:"juni",name:"Juni",icon:"🐱",role:"Puzzle cat",skill:"Tells you the pattern step.",line:"The bookshelf wall is wrong."},
+  {id:"sly",name:"Sly",icon:"🐍",role:"Codekeeper",skill:"Gives the first letter of a cipher.",line:"Every map is missing a piece."},
+  {id:"ella",name:"Ella",icon:"🦉",role:"Sky keeper",skill:"Lights the star order once.",line:"The stars are early tonight."},
+  {id:"lumi",name:"Lumi",icon:"🕯️",role:"Lightkeeper",skill:"Shows the lantern flash first.",line:"A little light, a big secret."}
+];
+const ROOMS=[
+  {id:"foyer",name:"Grand Foyer",need:0,who:"jason",card:"foyer-key",label:"Foyer Key",blurb:"Three doors. One of Jason's lines is the trick."},
+  {id:"library",name:"Grand Library",need:1,who:"juni",card:"pattern",label:"Pattern Lock",blurb:"The clock numbers are a rule, not a decoration."},
+  {id:"garden",name:"Secret Garden",need:1,who:"juno",card:"paw",label:"Garden Print",blurb:"The trail flashes, then the hedges close."},
+  {id:"cellar",name:"Stone Cellar",need:2,who:"sly",card:"moon-key",label:"Cellar Code",blurb:"The brick cipher stepped every letter forward."},
+  {id:"observatory",name:"Sky Dome",need:2,who:"ella",card:"constellation",label:"Star Chart",blurb:"Link 2, then 4, then 1. A wrong star resets."},
+  {id:"hall",name:"Candle Hall",need:3,who:"lumi",card:"lantern",label:"Never-Out Lantern",blurb:"Remember four flashes, then repeat them."},
+  {id:"garage",name:"Midnight Garage",need:3,who:"jason",card:"roadster-key",label:"Roadster Key",blurb:"The map piece fits one slot, if you brought it."},
+  {id:"vault",name:"Starter Vault",need:4,who:"lumi",card:"vault-seal",label:"Vault Seal",floor:0,blurb:"Four clues open the wheel. Then the fortune."},
+  {id:"gallery",name:"Portrait Gallery",need:0,who:"jason",card:"portrait",label:"Living Portrait",floor:1,blurb:"One painting blinks. The others are only paint."},
+  {id:"balcony",name:"Storm Balcony",need:0,who:"ella",card:"storm",label:"Storm Feather",floor:1,blurb:"The wind knocks three times, then once."},
+  {id:"belfry",name:"Bell Tower",need:1,who:"lumi",card:"bell",label:"Tower Bell",floor:1,blurb:"Count the chime. It matches the clock."}
+];
+const CLUES=["foyer-key","pattern","paw","moon-key"];
+const ASSETS={studio:{name:"Creator Studio",price:9000,level:1},loft:{name:"City Loft",price:15000,level:1},roadster:{name:"Classic Roadster",price:22000,level:2},lake:{name:"Lake House",price:48000,level:3},apex:{name:"Apex GT",price:65000,level:4},penthouse:{name:"Skyline Penthouse",price:90000,level:5}};
+function fresh(){return{v:9,character:null,xp:0,cash:0,starter:false,streak:0,last:"",owned:{},cards:[],perfect:0,notes:[],floor:0,hour:8,minute:12,whisper:"Eight twelve. The house has not noticed you yet.",favor:0,room:""}}
+function load(){try{return Object.assign(fresh(),JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){return fresh()}}
+let S=load(), roomMiss=0;
+function save(){localStorage.setItem(KEY,JSON.stringify(S));hud()}
+function level(){return [0,400,1000,1800,2800,4000].filter(x=>S.xp>=x).length}
+function xpNext(){return [100,400,1000,1800,2800,4000,99999][level()]}
+function who(){return CAST.find(c=>c.id===S.character)||CAST[0]}
+function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2400)}
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  const el=document.getElementById(id);el.classList.add("on");
+  document.getElementById("sky").classList.toggle("up",!!S.floor);
+}
+let audioOn=false, actx, master, timer;
+function music(){
+  audioOn=!audioOn;
+  if(!audioOn){if(master)master.gain.linearRampToValueAtTime(0,actx.currentTime+.3);toast("Music off");save();return}
+  if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();
+  if(actx.state==="suspended")actx.resume();
+  if(!master){master=actx.createGain();master.gain.value=.0001;master.connect(actx.destination)}
+  master.gain.cancelScheduledValues(actx.currentTime);
+  master.gain.linearRampToValueAtTime(.18,actx.currentTime+1.2);
+  if(!timer)loopBed();
+  toast("Night music on");
+}
+function tone(freq,when,dur,type,gain){
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(0,when);
+  g.gain.linearRampToValueAtTime(gain,when+.08);
+  g.gain.exponentialRampToValueAtTime(.0001,when+dur);
+  o.connect(g);g.connect(master);o.start(when);o.stop(when+dur+.05);
+}
+function loopBed(){
+  const chords=[[196,247,294],[174,220,262],[220,277,330],[164,196,247]];
+  let i=0;
+  timer=setInterval(()=>{
+    if(!audioOn||!actx)return;
+    const now=actx.currentTime;
+    chords[i%chords.length].forEach(f=>tone(f,now,3.4,"sine",.05));
+    tone(chords[i%chords.length][0]*2,now+1.2,1.6,"triangle",.02);
+    if(S.floor)tone(523,now+.4,.8,"sine",.015);
+    i++;
+  },3200);
+}
+function chime(ok){if(!audioOn||!actx)return;tone(ok?659:196,actx.currentTime,.35,ok?"triangle":"sawtooth",ok?.06:.03)}
+function fadeTo(fn){
+  const veil=document.getElementById("veil");
+  veil.classList.add("on");
+  setTimeout(()=>{fn();veil.classList.remove("on")},480);
+}
+function clockFace(){
+  const h=((S.hour%12)||12), m=S.minute||0;
+  const hh=(h%12)*30+m*0.5, mh=m*6;
+  return `<div class="clock" aria-label="${h}:${String(m).padStart(2,"0")}"><i style="transform:rotate(${mh}deg)"></i><b style="transform:rotate(${hh}deg)"></b><s>${h}:${String(m).padStart(2,"0")}</s></div>`;
+}
+function tick(mins){
+  S.minute=(S.minute||0)+mins;
+  while(S.minute>=60){S.minute-=60;S.hour=Math.min(13,(S.hour||8)+1);chimeHour()}
+  const h=S.hour, m=String(S.minute).padStart(2,"0");
+  S.whisper=`${h>12?"Past midnight":h+":"+m}. ${HOURS[h]||"The hands keep moving."}`;
+}
+function chimeHour(){
+  if(S.hour===9)S.cash+=400;
+  if(S.hour===10)S.favor=(S.favor||0)+1;
+  if(S.hour===11)S.freeMiss=1;
+  if(S.hour===12)S.floor=1;
+  if(audioOn&&actx){for(let i=0;i<Math.min(S.hour,12);i++)tone(523,actx.currentTime+i*.18,.22,"sine",.04)}
+  toast(HOURS[S.hour]||"The hour turns.");
+}
+function hud(){document.getElementById("hud").innerHTML=`<button class="pill" onclick="music()">${audioOn?"Music on":"Music"}</button><span class="pill">${S.floor?"Upper floor":"Ground"} · ${S.hour}:${String(S.minute||0).padStart(2,"0")}</span><span class="pill">${who().icon} ${who().name}</span><span class="pill">${S.cards.length}/12</span>`}
+const HOURS={9:"Nine. A lamp leaves M$400.",10:"Ten. The next locked door leans open.",11:"Eleven. The next miss will not count.",12:"Midnight. The upper floor unlocks.",13:"Past midnight. The tower is awake."};
+function grant(id,label){
+  if(S.cards.includes(id)){toast(label+" is already in the album.");return}
+  S.cards.push(id);S.xp+=90;S.cash+=1600;
+  const room=ROOMS.find(r=>r.card===id);
+  if(room&&who().id===room.who){S.cash+=800;S.xp+=30}
+  if(roomMiss===0){S.perfect=(S.perfect||0)+1;S.cash+=500;toast("Perfect room. "+label+" earned.");chime(true)}
+  else {toast("Card earned: "+label);chime(true)}
+  if(!S.notes.includes(label))S.notes.push(label);
+  tick(12);
+  shareState();
+  save();
+}
+function miss(btn,hint){if(S.freeMiss){S.freeMiss=0;toast(who().name+" catches it. That miss does not count.");save();return}roomMiss++;tick(7);if(btn)btn.classList.add("bad");chime(false);toast(hint+" The clock jumped seven minutes.");save()}
+function home(){
+  show("home");
+  document.getElementById("home").innerHTML=`<div class="panel"><div class="ey">TONIGHT ONLY</div><h1>The house is awake.</h1><p>The clock starts at eight. Every card moves it an hour, and the hour changes the house. Eleven forgives your next miss. Ten opens the next door early.</p><div class="row"><button class="btn" onclick="if(!audioOn)music();play()">Walk in</button><button class="btn ghost" onclick="music()">Music</button><button class="btn ghost" onclick="lobby()">Play together</button><button class="btn ghost" onclick="claimDaily()">Daily reward</button><button class="btn ghost" onclick="vault()">Vault</button><button class="btn ghost" onclick="album()">Album</button></div><div class="grid">${CAST.map(c=>`<button class="card ${S.character===c.id?"on":""}" onclick="pick('${c.id}')"><div style="font-size:28px">${c.icon}</div><h3>${c.name}</h3><p class="muted">${c.role}. ${c.line}<br>${c.skill}</p></button>`).join("")}</div><p class="fine">Mansion Dollars are fictional and have no cash value. Progress stays on this device. Shared rooms show companions only. No chat.</p></div>`;
+}
+function lobby(){
+  show("play");
+  const code=S.room||"";
+  document.getElementById("play").innerHTML=`<div class="panel"><div class="ey">SHARED HOUSE</div><h1>Play together.</h1><p class="muted">One room code. Two companions. You see who is in the hall and which doors are open. No names, no chat.</p><div class="row"><input class="txt" id="code" maxlength="4" placeholder="Code" value="${code}" style="max-width:140px;text-transform:uppercase"><button class="btn" onclick="hostRoom()">Open a house</button><button class="btn ghost" onclick="joinRoom()">Join</button><button class="btn ghost" onclick="home()">Back</button></div><p id="others" class="say">No one else yet.</p></div>`;
+}
+function roomCode(){return (document.getElementById("code").value||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,4)}
+function hostRoom(){const c=roomCode()||"NIGHT".slice(0,4);S.room=c;save();connectRoom(c,true)}
+function joinRoom(){const c=roomCode();if(c.length<4)return toast("Four letters.");S.room=c;save();connectRoom(c,false)}
+let link;
+function connectRoom(code,host){
+  if(link){try{link.destroy()}catch(e){}}
+  const me=who().id;
+  const peer=new Peer(host?"mm-"+code:undefined);
+  peer.on("open",id=>{
+    toast(host?"House "+code+" is open.":"Looking for "+code);
+    document.getElementById("others").textContent=host?"Waiting in "+code+".":"Joining "+code+".";
+    if(!host){
+      const conn=peer.connect("mm-"+code);
+      conn.on("open",()=>{link=conn;bindLink();conn.send({hi:me,cards:S.cards,hour:S.hour,floor:S.floor})});
+    }
+  });
+  peer.on("connection",conn=>{link=conn;bindLink();conn.on("open",()=>conn.send({hi:me,cards:S.cards,hour:S.hour,floor:S.floor}))});
+  peer.on("error",()=>toast("The shared house did not open. Play solo, or try another code."));
+}
+function bindLink(){
+  link.on("data",msg=>{
+    if(msg.hi){document.getElementById("others").textContent=CAST.find(c=>c.id===msg.hi).name+" is in the hall.";toast(CAST.find(c=>c.id===msg.hi).name+" walked in.")}
+    if(msg.cards){msg.cards.forEach(id=>{if(!S.cards.includes(id))S.cards.push(id)});if(msg.hour>S.hour)S.hour=msg.hour;if(msg.floor)S.floor=1;save()}
+  });
+}
+function shareState(){if(link&&link.open)link.send({hi:who().id,cards:S.cards,hour:S.hour,floor:S.floor})}
+function play(){
+  show("play");
+  const floor=S.floor?1:0;
+  const list=ROOMS.filter(r=>(r.floor||0)===floor);
+  const up=S.hour>=12||S.cards.includes("vault-seal");
+  document.getElementById("play").innerHTML=`<div class="panel"><div style="display:flex;gap:14px;align-items:center">${clockFace()}<div><div class="ey">${floor?"UPPER FLOOR":"GROUND FLOOR"} · ${who().icon} ${who().name.toUpperCase()}</div><h1 style="font-size:34px">${S.whisper||"The night's doors."}</h1></div></div><div class="row"><button class="btn ghost" onclick="home()">Companions</button><button class="btn ghost" onclick="album()">Album ${S.cards.length}/12</button><button class="btn" ${up?"":"disabled"} onclick="climb()">${floor?"Downstairs":"Climb"}</button>${S.cards.includes("vault-seal")?`<button class="btn ghost" onclick="enterRoom('midnight')">After midnight</button>`:""}</div><div class="grid">${list.map(r=>{const open=floor?true:S.cards.length+(S.favor||0)>=r.need;const done=S.cards.includes(r.card);return `<article class="room ${done?"on":""}"><h3>${r.name}</h3><p class="muted">${r.blurb}</p><button class="btn" ${open?"":"disabled"} onclick="enterRoom('${r.id}')">${done?"Replay":open?"Enter":"Later tonight"}</button></article>`}).join("")}</div><div id="stage"></div></div>`;
+}
+function climb(){if(!(S.hour>=12||S.cards.includes("vault-seal")))return toast("The stair waits for midnight.");fadeTo(()=>{S.floor=S.floor?0:1;save();play()})}
+function enterRoom(id){roomMiss=0;if(id==="midnight")return midnight();const r=ROOMS.find(x=>x.id===id);document.getElementById("stage").innerHTML=`<div class="scene" id="box"></div>`;solve(id)}
+function solve(id){({foyer,library,garden,cellar,observatory,hall,garage,vault:vaultRoom,gallery,balcony,belfry})[id]()}
+function foyer(){
+  const hint=who().id==="jason"?"Jason: ignore the gold door. Blue is the quiet one.":"Two hints are true. The gold door is the lie.";
+  document.getElementById("box").innerHTML=`<h2>Which door keeps the key?</h2><p class="muted">Jason says the red door is warm, the blue door is quiet, and the gold door is a painting.</p><div class="choices"><button class="choice" onclick="grant('foyer-key','Foyer Key');play()">Blue, the quiet door</button><button class="choice" onclick="miss(this,'${hint}')">Gold painting</button><button class="choice" onclick="miss(this,'${hint}')">Red, just because it is warm</button></div>`;
+}
+function library(){
+  const step=who().id==="juni"?3:3, base=4, ans=base+step*3;
+  const hint=who().id==="juni"?"Juni: add 3 each time.":"The gap never changes.";
+  document.getElementById("box").innerHTML=`<h2>Juni's clock</h2><div class="cipher">4 · 7 · 10 · ?</div><div class="choices">${[ans,ans+step,ans-1,16].filter((v,i,a)=>a.indexOf(v)===i).map(n=>`<button class="choice" onclick="if(${n}===${ans}){grant('pattern','Pattern Lock');play()}else miss(this,'${hint}')">${n}</button>`).join("")}</div>`;
+}
+function garden(){
+  window._trail=[];
+  const hint=who().id==="juno"?"Juno flashes it again: paw, leaf, paw.":"The repeating mark is the paw.";
+  document.getElementById("box").innerHTML=`<h2>The trail hides</h2><p class="muted" id="flash">${who().id==="juno"?"Watch: 🐾 · 🌿 · 🐾":"Which mark holds the path?"}</p><div class="choices"><button class="choice" onclick="grant('paw','Garden Print');play()">🐾 paw, leaf, paw</button><button class="choice" onclick="miss(this,'${hint}')">🦴 bone only</button><button class="choice" onclick="miss(this,'${hint}')">🌿 leaf, leaf, leaf</button></div>`;
+}
+function cellar(){
+  const hint=who().id==="sly"?"Sly: first letter is M. The word is the thing above the dome.":"Step each letter back. N becomes M.";
+  document.getElementById("box").innerHTML=`<h2>Third brick</h2><div class="cipher">NPPO</div><input class="txt" id="code" placeholder="Step every letter back"><div class="row"><button class="btn" onclick="if(document.getElementById('code').value.trim().toUpperCase()==='MOON'){grant('moon-key','Cellar Code');play()}else miss(null,'${hint}')">Break the code</button></div>`;
+}
+function observatory(){
+  window._stars=[];
+  document.getElementById("box").innerHTML=`<h2>Link the stars</h2><p id="starNote">${who().id==="ella"?"Ella lights 2, then 4, then 1.":"Order is on the slate if you searched."}</p><div class="stars">${[1,2,3,4,5].map(n=>`<button class="star" id="st${n}" onclick="star(${n})">${n}</button>`).join("")}</div>`;
+}
+function star(n){
+  window._stars.push(n);const el=document.getElementById("st"+n);if(el)el.classList.add("on");
+  const note=document.getElementById("starNote");if(note)note.textContent=window._stars.join(" → ");
+  const want=[2,4,1];
+  if(window._stars[window._stars.length-1]!==want[window._stars.length-1]){miss(null,"That star is early. Resetting.");window._stars=[];document.querySelectorAll(".star").forEach(s=>s.classList.remove("on"));return}
+  if(window._stars.length===3){grant("constellation","Star Chart");play()}
+}
+function hall(){
+  window._lamps=[];window._show=["L","R","L","M"];
+  document.getElementById("box").innerHTML=`<h2>Copy the flash</h2><p id="lampNote">${who().id==="lumi"?"Lumi shows left, right, left, middle.":"Search first if you missed the flare."}</p><div class="lamps"><button class="lamp" onclick="lamp('L')">Left</button><button class="lamp" onclick="lamp('R')">Right</button><button class="lamp" onclick="lamp('M')">Middle</button></div>`;
+}
+function lamp(ch){
+  window._lamps.push(ch);const note=document.getElementById("lampNote");if(note)note.textContent=window._lamps.join(" · ");
+  const want=["L","R","L","M"];
+  if(window._lamps[window._lamps.length-1]!==want[window._lamps.length-1]){miss(null,"The hall flares left, right, left, middle.");window._lamps=[];return}
+  if(window._lamps.length===4){grant("lantern","Never-Out Lantern");play()}
+}
+function garage(){
+  if(!S.cards.includes("moon-key")){document.getElementById("box").innerHTML=`<h2>The map piece is still in the cellar.</h2><p>Break Sly's code before the roadster will take a key.</p>`;return}
+  document.getElementById("box").innerHTML=`<h2>Where does the torn corner fit?</h2><div class="choices"><button class="choice" onclick="grant('roadster-key','Roadster Key');play()">Glove box</button><button class="choice" onclick="miss(this,'The torn corner matches the glove box lip.')">Wheel</button><button class="choice" onclick="miss(this,'Not the trunk. Look at the lip of the glove box.')">Trunk</button></div>`;
+}
+function vaultRoom(){
+  const have=CLUES.filter(id=>S.cards.includes(id));
+  if(have.length<4){document.getElementById("box").innerHTML=`<h2>The wheel will not turn.</h2><p>It wants four clues. You have ${have.length}: foyer key, pattern lock, garden print, cellar code.</p>`;return}
+  if(S.starter){toast("Vault already open. The stair is awake.");S.floor=1;save();play();return}
+  S.starter=true;S.cash+=50000;S.xp+=120;grant("vault-seal","Vault Seal");toast("Vault open. After midnight is awake.");save();play();
+}
+function midnight(){
+  fadeTo(()=>{
+    document.getElementById("sky").classList.add("up");
+    document.getElementById("stage").innerHTML=`<div class="scene" id="box"><div class="ey">AFTER MIDNIGHT</div><h2>One lock. Three beats.</h2><p class="say">The house uses what you already learned, backward.</p><div class="cipher">13 · 10 · 7 · ?</div><div class="choices"><button class="choice" onclick="mid2()">4</button><button class="choice" onclick="miss(this,'Count down by 3.')">16</button></div></div>`;
+  });
+}
+function mid2(){
+  document.getElementById("box").innerHTML=`<h2>Then the sky, from the end.</h2><p class="muted">Downstairs was 2, 4, 1.</p><div class="choices"><button class="choice" onclick="mid3()">1 · 4 · 2</button><button class="choice" onclick="miss(this,'Read the old order backward.')">2 · 4 · 1</button></div>`;
+}
+function mid3(){
+  document.getElementById("box").innerHTML=`<h2>Last: the door that was a lie.</h2><div class="choices"><button class="choice" onclick="grant('night-seal','Night Seal');play()">Gold</button><button class="choice" onclick="miss(this,'Downstairs gold was the painting. Midnight keeps it.')">Blue</button></div>`;
+}
+function claimDaily(){
+  const today=new Date().toISOString().slice(0,10);
+  if(S.last===today)return toast("Already claimed today.");
+  const prev=S.last?Math.round((Date.parse(today)-Date.parse(S.last))/86400000):99;
+  S.streak=prev===1?Math.min(7,S.streak+1):1;S.last=today;
+  const reward=2500+(S.streak-1)*250;S.cash+=reward;S.xp+=60;save();toast("Day "+S.streak+": M$"+reward);
+}
+function vault(){
+  show("vault");
+  document.getElementById("vault").innerHTML=`<div class="panel"><div class="ey">VAULT</div><h1>M$ ${Number(S.cash||0).toLocaleString()}</h1><p class="muted">${S.starter?"Starter vault open. Buy something the house can keep.":"Still sealed. Bring four clues to the vault door."} Fictional dollars, no cash value.</p><div class="bar"><span style="width:${Math.min(100,S.xp/xpNext()*100)}%"></span></div><p class="muted">${S.xp} XP · level ${level()} · ${S.perfect||0} perfect rooms</p><div class="row"><button class="btn ghost" onclick="play()">Doors</button></div><div class="grid">${Object.entries(ASSETS).map(([id,a])=>`<article class="asset"><h3>${a.name}</h3><p class="muted">M$ ${a.price.toLocaleString()} · level ${a.level}</p><button class="btn" ${S.owned[id]?"disabled":""} onclick="buy('${id}')">${S.owned[id]?"In the house":"Buy"}</button></article>`).join("")}</div></div>`;
+}
+function buy(id){const a=ASSETS[id];if(!S.starter)return toast("Open the vault first.");if(level()<a.level)return toast("Needs level "+a.level);if(S.cash<a.price)return toast("Not enough Mansion Dollars.");S.cash-=a.price;S.owned[id]=1;S.xp+=70;save();toast(a.name+" is in the house.");vault()}
+function gallery(){document.getElementById("box").innerHTML=`<h2>Which portrait blinked?</h2><p class="muted">The eyes moved on the left. The center is varnish. The right is a mirror.</p><div class="choices"><button class="choice" onclick="grant('portrait','Living Portrait');play()">Left</button><button class="choice" onclick="miss(this,'Watch the left frame.')">Center</button><button class="choice" onclick="miss(this,'The right frame only copies you.')">Right</button></div>`}
+function balcony(){document.getElementById("box").innerHTML=`<h2>The storm knocks.</h2><p class="muted">Three, then one. Answer with the same count.</p><div class="choices"><button class="choice" onclick="grant('storm','Storm Feather');play()">Four knocks</button><button class="choice" onclick="miss(this,'Three, then one. That is four.')">Three knocks</button></div>`}
+function belfry(){document.getElementById("box").innerHTML=`<h2>How many times did the tower just strike?</h2><p class="muted">It strikes the hour on the clock.</p><div class="choices">${[S.hour,S.hour-1,12].filter((v,i,a)=>a.indexOf(v)===i).map(n=>`<button class="choice" onclick="if(${n}===${S.hour}){grant('bell','Tower Bell');play()}else miss(this,'Count the face. It is ${S.hour}.')">${n}</button>`).join("")}</div>`}
+function album(){
+  show("album");
+  document.getElementById("album").innerHTML=`<div class="panel"><div class="ey">ALBUM ${S.cards.length}/12</div><h1>${S.cards.length===12?"Both floors are quiet.":"Ground doors, then the upper floor."}</h1><div class="row"><button class="btn ghost" onclick="play()">Back</button></div><div class="grid">${ROOMS.concat([{card:"night-seal",label:"Night Seal",name:"After midnight"}]).map(r=>`<article class="card" style="opacity:${S.cards.includes(r.card)?1:.45}"><h3>${S.cards.includes(r.card)?r.label:"Still in the house"}</h3><p class="muted">${(r.floor?"Upper · ":"")}${r.name}</p></article>`).join("")}</div></div>`;
+}
+hud();home();
+</script>
+</body>
+</html>
