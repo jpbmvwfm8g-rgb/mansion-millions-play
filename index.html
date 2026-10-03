@@ -259,6 +259,10 @@ function hostRoom(){const c=roomCode()||randomCode();if(c.length!==4)return toas
 function joinRoom(){const c=roomCode();if(c.length<4)return toast("Four letters.");S.room=c;save();connectRoom(c,false)}
 let link, roomPeer, connectTimer, sharedStatus="No shared house is connected.";
 const PEER_PREFIX="mm-night-v3-";
+const PEER_CONFIG={iceServers:[
+  {urls:"stun:stun.l.google.com:19302"},
+  {urls:["turn:eu-0.turn.peerjs.com:3478?transport=tcp","turn:us-0.turn.peerjs.com:3478?transport=tcp","turn:eu-0.turn.peerjs.com:3478","turn:us-0.turn.peerjs.com:3478"],username:"peerjs",credential:"peerjsp"}
+]};
 function roomStatus(text){sharedStatus=text;const el=document.getElementById("others");if(el)el.textContent=text}
 function disconnectRoom(){clearTimeout(connectTimer);if(link){link.close();link=null}if(roomPeer){roomPeer.destroy();roomPeer=null}}
 function leaveRoom(){disconnectRoom();S.room="";roomStatus("You left the shared house. Your progress is saved.");save();lobby()}
@@ -266,7 +270,7 @@ function connectRoom(code,host){
   disconnectRoom();
   if(!navigator.onLine||typeof Peer!=="function"){roomStatus("Play together is unavailable right now. You can explore solo.");return}
   roomStatus(host?"Opening house "+code+"…":"Looking for house "+code+"…");
-  let peer;try{peer=new Peer(host?PEER_PREFIX+code:undefined,{debug:0})}catch(e){roomStatus("The shared house could not open. You can explore solo.");return}
+  let peer;try{peer=new Peer(host?PEER_PREFIX+code:undefined,{debug:0,config:PEER_CONFIG})}catch(e){roomStatus("The shared house could not open. You can explore solo.");return}
   roomPeer=peer;
   connectTimer=setTimeout(()=>{if(roomPeer===peer&&(!host||!peer.open)&&!link?.open){disconnectRoom();roomStatus("Connection timed out. Check the code and try again, or explore solo.")}},18000);
   peer.on("open",id=>{
