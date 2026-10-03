@@ -1,0 +1,6 @@
+{
+  "name": "mansion-millions-qa",
+  "private": true,
+  "scripts": {"test": "node run.cjs"},
+  "devDependencies": {"playwright": "1.62.1", "peer": "1.0.2", "@sparticuz/chromium": "153.0.0"}
+}
