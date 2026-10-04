@@ -9,7 +9,9 @@
   #stage{max-width:480px;height:100%;margin:0 auto;position:relative;background:#000}
   video{width:100%;height:100%;object-fit:cover}
   #choice{position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(transparent,#140e0c)}
-  button,a.b{display:block;width:100%;margin:6px 0;border:0;border-radius:14px;padding:12px;background:#fff6e4;color:#2a1b16;font-weight:800;text-decoration:none;text-align:left;font-family:inherit}
+  button,a.b{display:flex;gap:10px;align-items:center;width:100%;margin:6px 0;border:0;border-radius:14px;padding:8px;background:#fff6e4;color:#2a1b16;font-weight:800;text-decoration:none;text-align:left;font-family:inherit}
+button img{width:54px;height:54px;border-radius:10px;object-fit:cover}
+#preview{width:100%;border-radius:14px;max-height:180px;object-fit:cover;margin-bottom:8px}
   h1{margin:0 0 8px;font-size:28px}
 </style>
 </head>
@@ -20,6 +22,7 @@
 </div>
 <script>
 const film = document.getElementById("film");
+const walks = {Jake:"cast/jake-enter.mp4",Juno:"cast/juno-enter.mp4",Juni:"cast/juni-enter.mp4",Ella:"cast/ella-enter.mp4",Sly:"cast/sly-enter.mp4",Lumi:"cast/lumi-enter.mp4"};
 const box = document.getElementById("choice");
 const beats = [
   {t:0, title:"The picture starts", options:[["Pick a friend","friend"],["Skip to a door","door"]]},
@@ -33,12 +36,22 @@ function show(i){
   beat = i;
   const b = beats[i];
   film.currentTime = b.t;
-  box.innerHTML = `<h1>${b.title}</h1>` + b.options.map(([n,k])=>`<button data-k="${k}" data-n="${n}">${n}</button>`).join("");
+  const faces = {Jake:"cast/jake.jpg",Juno:"cast/juno.jpg",Juni:"cast/juni.jpg",Ella:"cast/ella.jpg",Sly:"cast/sly.jpg",Lumi:"cast/lumi.jpg"};
+  const walks = {Jake:"cast/jake-enter.mp4",Juno:"cast/juno-enter.mp4",Juni:"cast/juni-enter.mp4",Ella:"cast/ella-enter.mp4",Sly:"cast/sly-enter.mp4",Lumi:"cast/lumi-enter.mp4"};
+  box.innerHTML = `<h1>${b.title}</h1>` + b.options.map(([n,k])=>{
+    const face = faces[n] ? `<img src="${faces[n]}" alt="${n}">` : "";
+    return `<button data-k="${k}" data-n="${n}">${face}<span>${n}</span></button>`;
+  }).join("");
 }
 box.onclick = e => {
   const btn = e.target.closest("button");
   if(!btn) return;
-  if(btn.dataset.n && ["Jake","Juno","Juni","Ella","Sly","Lumi"].includes(btn.dataset.n)) localStorage.setItem("mm-friend", btn.dataset.n);
+  if(btn.dataset.n && ["Jake","Juno","Juni","Ella","Sly","Lumi"].includes(btn.dataset.n)){
+    localStorage.setItem("mm-friend", btn.dataset.n);
+    const v = document.createElement("video");
+    v.id = "preview"; v.src = walks[btn.dataset.n]; v.autoplay = true; v.muted = true; v.playsInline = true;
+    box.prepend(v);
+  }
   if(btn.dataset.k==="game"){ location.href = "continuous.html"; return; }
   show(Math.min(beats.length-1, beat+1));
 };
