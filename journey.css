@@ -1,0 +1,10 @@
+#journey{position:fixed;inset:0;z-index:40;display:none;background:#140e0c center/cover no-repeat;align-items:flex-end;justify-content:center}
+#journey.on{display:flex;animation:arrive .7s ease}
+#journey .cap{width:min(480px,100%);margin:0;padding:18px 16px 28px;background:linear-gradient(transparent,rgba(20,12,8,.88));color:#fff6e4}
+#journey h2{margin:0;font:700 32px/1 Georgia,serif}
+#journey p{margin:6px 0 0}
+@keyframes arrive{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}
+#diceShow{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:rgba(12,8,6,.45)}
+#diceShow.on{display:flex}
+#diceShow b{width:92px;height:92px;border-radius:18px;background:#fff6e4;color:#2a1b16;display:grid;place-items:center;font-size:48px;animation:tumble .45s linear infinite}
+@keyframes tumble{50%{transform:rotate(18deg) scale(1.08)}}
