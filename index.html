@@ -45,6 +45,11 @@
   #intro h2{margin:0 0 6px;font-size:28px}
   #intro label{display:block;font-size:13px;margin:8px 0 4px}
   #intro input{width:100%;border:1px solid #ead7b4;border-radius:12px;padding:10px;font:inherit}
+  #intro ul{margin:8px 0 12px;padding-left:18px}
+  #intro li{margin:4px 0}
+  .check{display:flex;gap:8px;align-items:flex-start}
+  .check input{width:auto}
+  .fine{font-size:13px;color:#6d5848}
   .err{color:#8c3048;font-size:13px}
 </style>
 </head>
@@ -193,17 +198,27 @@ const sheet = document.getElementById("introSheet");
 const cine = document.getElementById("cine");
 function showAuth(mode){
   cine.src = mode==="login" ? "reward.jpg" : "board.jpg";
-  sheet.innerHTML = `<p>Official mansion account</p><h2>${mode==="login"?"Welcome back":"Sign up to play"}</h2>
-    <p>${mode==="login"?"Log in to resume the estate you built.":"Create your account. The newsletter brings a daily allowance of mansion money."}</p>
-    ${mode==="signup"?'<label>Name</label><input id="nm" autocomplete="name">':""}
-    <label>Email</label><input id="em" type="email" autocomplete="username">
-    <label>Password</label><input id="pw" type="password" autocomplete="${mode==="login"?"current-password":"new-password"}">
-    ${mode==="signup"?'<label><input id="news" type="checkbox" checked> Send the mansion newsletter and my daily allowance</label>':""}
+  const signup = mode!=="login";
+  sheet.innerHTML = `<p>${signup?"Join the mansion":"Return to your estate"}</p>
+    <h2>${signup?"Create your Mansion Millions account":"Log in"}</h2>
+    <p>${signup
+      ? "One account for each player. It keeps the wings you bought, the friend you chose, and the spot you left on the board. The newsletter is how the house pays a daily allowance."
+      : "Use the same email and password from this phone. Your cash, dice, upgrades, and stickers come back with you."}</p>
+    <ul>
+      ${signup
+        ? "<li>Name on the estate</li><li>Email is the login</li><li>Password, 6 or more characters</li><li>Newsletter: $5,000 mansion money each day</li><li>Progress stays on this phone</li>"
+        : "<li>Email you signed up with</li><li>Password for this estate</li><li>Resume the board where you stopped</li><li>See wings, friend, and allowance in your name</li>"}
+    </ul>
+    ${signup?'<label>Player name</label><input id="nm" autocomplete="name" placeholder="The name on the door">':""}
+    <label>Email</label><input id="em" type="email" autocomplete="username" placeholder="you@email.com">
+    <label>Password</label><input id="pw" type="password" autocomplete="${signup?"new-password":"current-password"}" placeholder="${signup?"At least 6 characters":"Your password"}">
+    ${signup?'<label class="check"><input id="news" type="checkbox" checked> Send the mansion newsletter. This unlocks the daily allowance of $5,000. Mansion money is fictional.</label>':""}
+    <p class="fine">${signup?"Already have an estate on this phone? Log in instead.":"New player? Create an account before the first roll."}</p>
     <p class="err" id="err"></p>
-    <div class="row"><button class="go" id="goAuth">${mode==="login"?"Log in":"Create account"}</button>
-    <button class="go" id="swap">${mode==="login"?"Need an account":"I already play"}</button></div>`;
-  document.getElementById("swap").onclick = () => showAuth(mode==="login"?"signup":"login");
-  document.getElementById("goAuth").onclick = () => mode==="login" ? login() : signup();
+    <div class="row"><button class="go" id="goAuth">${signup?"Create account and enter":"Log in and resume"}</button>
+    <button class="go" id="swap">${signup?"I already play":"Need an account"}</button></div>`;
+  document.getElementById("swap").onclick = () => showAuth(signup?"login":"signup");
+  document.getElementById("goAuth").onclick = () => signup ? window.signup() : login();
 }
 async function signup(){
   const email = document.getElementById("em").value.trim().toLowerCase();
