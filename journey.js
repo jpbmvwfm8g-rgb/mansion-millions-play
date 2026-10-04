@@ -14,7 +14,7 @@
     document.getElementById("jt").textContent = title;
     document.getElementById("jd").textContent = line;
     veil.classList.add("on");
-    setTimeout(()=>location.href = href, 700);
+    setTimeout(()=>location.href = href, 280);
   }
   document.addEventListener("click", e => {
     const a = e.target.closest("a");
@@ -36,7 +36,7 @@
     document.getElementById("jd").textContent = trip[2];
     veil.classList.add("on");
     sessionStorage.setItem("mm-arrived","1");
-    setTimeout(()=>veil.classList.remove("on"), 900);
+    setTimeout(()=>veil.classList.remove("on"), 420);
   }
   window.mmJourney = walk;
 })();

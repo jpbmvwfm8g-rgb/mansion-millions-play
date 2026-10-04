@@ -21,7 +21,8 @@
   nav { display:flex; gap:6px; padding:6px 12px 10px; overflow:auto; }
   nav button { border:0; border-radius:999px; padding:8px 12px; background:#2a1c16; color:var(--cream); font-family:inherit; }
   nav button.on { background:var(--gold); color:var(--ink); font-weight:700; }
-  .view { display:none; padding:0 12px 96px; }
+  .view { display:none; padding:0 12px 96px; animation:slide .35s ease; }
+  @keyframes slide{from{opacity:.4;transform:translateX(16px)}to{opacity:1;transform:none}}
   .view.on { display:block; }
   img.scene { width:100%; border-radius:22px; display:block; }
   #stage { position:relative; }
@@ -143,38 +144,56 @@ document.querySelector("nav").onclick = e => {
   document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b===e.target));
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on", v.id===e.target.dataset.v));
 };
-const ROLL_SCENES = ["explore.jpg","board.jpg","build.jpg","reward.jpg","album.jpg","explore.jpg","board.jpg","reward.jpg"];
-function diceLayer(){
-  let d = document.getElementById("diceShow");
-  if(!d){ d = document.createElement("div"); d.id="diceShow"; d.innerHTML="<b>🎲</b>"; document.body.appendChild(d); }
-  return d;
+function floatCash(text){
+  const el = document.createElement("div");
+  el.textContent = text;
+  el.style.cssText = "position:fixed;left:50%;top:42%;transform:translate(-50%,0);z-index:25;background:#fff6e4;color:#2a1b16;font-weight:800;font-size:28px;padding:12px 16px;border-radius:16px;box-shadow:0 10px 24px #0006;transition:transform .7s ease,opacity .7s ease";
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>{ el.style.transform = "translate(-50%,-36px)"; el.style.opacity = "0"; });
+  setTimeout(()=>el.remove(), 720);
+}
+function glide(steps, done){
+  const token = $("token");
+  const start = S.pos;
+  const from = STOPS[start];
+  const toIndex = (start + steps) % STOPS.length;
+  const to = STOPS[toIndex];
+  const t0 = performance.now();
+  const dur = 280 + steps * 160;
+  const board = $("board");
+  board.style.transition = "transform .4s ease";
+  board.style.transform = "scale(1.04)";
+  function frame(now){
+    const k = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - k, 3);
+    const along = e * steps;
+    const seg = Math.min(steps - 1, Math.floor(along));
+    const a = STOPS[(start + seg) % STOPS.length];
+    const b = STOPS[(start + seg + 1) % STOPS.length];
+    const f = along - seg;
+    token.style.left = (a.x + (b.x - a.x) * f) + "%";
+    token.style.top = (a.y + (b.y - a.y) * f) + "%";
+    if(k < 1) requestAnimationFrame(frame);
+    else { S.pos = toIndex; board.style.transform = "scale(1)"; done(); }
+  }
+  requestAnimationFrame(frame);
 }
 $("roll").onclick = () => {
-  if(S.dice<=0) return;
-  S.dice--; $("roll").disabled = true;
-  const n = 1+Math.floor(Math.random()*6);
-  const faces = "⚀⚁⚂⚃⚄⚅";
-  const layer = diceLayer();
-  layer.classList.add("on");
-  let ticks = 0;
-  const spin = setInterval(()=>{ layer.querySelector("b").textContent = faces[ticks%6]; ticks++; }, 90);
-  let left = n;
-  const hop = () => {
-    if(left<=0){ clearInterval(spin); layer.classList.remove("on"); land(n); return; }
-    S.pos = (S.pos+1)%STOPS.length; left--; hud(); setTimeout(hop, 220);
-  };
-  hop();
+  if(S.dice<=0 || $("roll").disabled) return;
+  S.dice--; $("roll").disabled = true; hud();
+  const n = 1 + Math.floor(Math.random()*6);
+  $("roll").textContent = "ROLL  " + n;
+  glide(n, () => land(n));
 };
 function land(n){
   $("roll").disabled = false;
+  $("roll").textContent = "ROLL";
   const pay = 800 + (S.lv[WINGS[S.pos%5]]||0)*900;
   S.cash += pay;
   if(n===6){ S.stickers++; S.dice += 2; }
   localStorage.setItem("mm3", JSON.stringify(S));
   hud();
-  const scene = ROLL_SCENES[S.pos] || "reward.jpg";
-  $("modalCard").innerHTML = `<img src="${scene}" class="scene" alt=""><div class="dice">${"⚀⚁⚂⚃⚄⚅"[n-1]}</div><p>The path carries you</p><h2>${STOPS[S.pos].n}</h2><p>You arrive and collect +$${money(pay)}${n===6?" and a sticker":""}.</p><button class="go" id="ok">Continue the journey</button>`;
-  $("modal").classList.add("on");
+  floatCash("+" + money(pay) + "  " + STOPS[S.pos].n);
 }
 document.body.onclick = e => {
   if(e.target.id==="ok") $("modal").classList.remove("on");
