@@ -38,24 +38,24 @@
   .dice { font-size:42px; text-align:center; }
   .note { font-size:14px; line-height:1.4; }
 
-  #intro{position:fixed;inset:0;z-index:20;background:#140e0c center/cover no-repeat;display:flex;align-items:flex-end;justify-content:center}
-  #intro .sheet{width:min(480px,100%);background:rgba(255,246,228,.96);color:#2a1b16;border-radius:24px 24px 0 0;padding:16px 16px 22px;max-height:78vh;overflow:auto}
-  #intro h2{margin:0 0 6px;font-size:28px}
+  #intro{position:fixed;inset:0;z-index:20;background:#140e0c;display:flex;align-items:flex-end;justify-content:center}
+  #cine{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.08);animation:ken 8s ease-in-out alternate infinite}
+  @keyframes ken{from{transform:scale(1)}to{transform:scale(1.08)}}
+  #intro .sheet{position:relative;width:min(480px,100%);background:linear-gradient(180deg,rgba(20,12,8,.2),rgba(20,12,8,.82));color:#fff6e4;border-radius:24px 24px 0 0;padding:16px 16px 22px;max-height:62vh;overflow:auto}
+  #intro h2{margin:0 0 6px;font-size:30px;text-shadow:0 4px 16px #000}
   #intro p{margin:6px 0 12px;line-height:1.35}
   .row{display:flex;gap:8px;flex-wrap:wrap}
-  .pick{flex:1 1 46%;text-align:left;border:1px solid #ead7b4;background:#fff;border-radius:14px;padding:10px;font-family:inherit}
-  .pick.on{border-color:#f0c14b;box-shadow:0 0 0 2px #f0c14b}
-  .skip{position:absolute;top:12px;right:12px;border:0;border-radius:999px;padding:8px 12px;background:#fff6e4;color:#2a1b16;font-weight:700}
-
+  .pick{flex:1 1 46%;text-align:left;border:0;background:rgba(255,246,228,.94);color:#2a1b16;border-radius:14px;padding:10px;font-family:inherit}
+  .skip{position:absolute;top:12px;right:12px;z-index:2;border:0;border-radius:999px;padding:8px 12px;background:#fff6e4;color:#2a1b16;font-weight:700}
 </style>
 </head>
 <body>
 
 <div id="intro">
-  <button class="skip" id="skipIntro">Skip intro</button>
+  <img id="cine" alt="" src="explore.jpg">
+  <button class="skip" id="skipIntro">Skip</button>
   <div class="sheet" id="introSheet"></div>
 </div>
-
 <div id="app">
   <header>
     <h1>Mansion Millions</h1>
@@ -182,53 +182,53 @@ hud();
 
 <script>
 const TEAM = [
-  {id:"jason", name:"Jason", line:"I keep the quiet door. Every tile is a maybe."},
-  {id:"juno", name:"Juno", line:"I found paw prints. Come on, before they hide."},
-  {id:"juni", name:"Juni", line:"The bookshelf wall is wrong. I know the pattern."},
-  {id:"ella", name:"Ella", line:"The stars are early tonight. I can light the order."},
-  {id:"sly", name:"Sly", line:"Every map is missing a piece. I have the first letter."},
-  {id:"lumi", name:"Lumi", line:"A little light, a big secret. I flash the lantern first."}
+  {id:"jason", name:"Jason", line:"Quiet door. He names the tile you already tried."},
+  {id:"juno", name:"Juno", line:"Paw prints. She flashes the trail before it hides."},
+  {id:"juni", name:"Juni", line:"Bookshelf. She knows which pattern is wrong."},
+  {id:"ella", name:"Ella", line:"Stars. The observatory pays when the sky is early."},
+  {id:"sly", name:"Sly", line:"Code. First letter of the vault cipher."},
+  {id:"lumi", name:"Lumi", line:"Lantern. She lights the next glowing spot."}
+];
+const SCENES = [
+  {img:"explore.jpg", kicker:"The picture starts", title:"The gates open", text:"The camera finds the path. Coins already glint in the fountain."},
+  {img:"board.jpg", kicker:"Mansion jaunt", title:"Eight wings, one night", text:"You stroll the gold path. Kitchen, garden, library, ballroom."},
+  {img:"reward.jpg", kicker:"Storybook", title:"Jeeves turns the page", text:"A dice falls into the goblet. The ghost butler points the way."},
+  {img:"explore.jpg", kicker:"Treasure hunt", title:"Dig where it glows", text:"Kids can hunt the key, the music box, and Aunt Millie's wink."}
 ];
 const intro = document.getElementById("intro");
 const sheet = document.getElementById("introSheet");
+const cine = document.getElementById("cine");
+let scene = 0;
 function closeIntro(choice){
   if(choice) localStorage.setItem("mm-friend", choice);
   localStorage.setItem("mm-intro-seen", "1");
   intro.style.display = "none";
   const who = localStorage.getItem("mm-friend");
-  if(who){
-    const t = document.createElement("button");
-    t.textContent = "Friend: " + who;
-    t.className = "pill";
-    t.style.marginLeft = "8px";
-    t.onclick = () => { intro.style.display = "flex"; meet(); };
-    document.querySelector("header").appendChild(t);
-  } else {
-    const t = document.createElement("button");
-    t.textContent = "Meet the team";
-    t.className = "pill";
-    t.onclick = () => { intro.style.display = "flex"; meet(); };
-    document.querySelector("header").appendChild(t);
-  }
+  const t = document.createElement("button");
+  t.className = "pill";
+  t.textContent = who ? "Friend: " + who : "Meet the team";
+  t.onclick = () => { intro.style.display = "flex"; meet(); };
+  document.querySelector("header").appendChild(t);
 }
-function welcome(){
-  sheet.innerHTML = `<h2>Welcome to the mansion</h2><p>Jason's Place is awake. You can meet the team, pick a friend, or skip and choose later.</p><div class="row"><button class="go" id="meetBtn">Meet the team</button><button class="go" id="playNow">Play now</button></div>`;
-  document.getElementById("meetBtn").onclick = meet;
-  document.getElementById("playNow").onclick = () => closeIntro("");
+function frame(){
+  const s = SCENES[scene];
+  cine.src = s.img;
+  sheet.innerHTML = `<p>${s.kicker}</p><h2>${s.title}</h2><p>${s.text}</p><div class="row"><button class="go" id="nextScene">${scene < SCENES.length-1 ? "Keep going" : "Meet the team"}</button></div>`;
+  document.getElementById("nextScene").onclick = () => {
+    if(scene < SCENES.length-1){ scene++; frame(); }
+    else meet();
+  };
 }
 function meet(){
-  sheet.innerHTML = `<h2>Meet the team</h2><p>Pick a friend for the night, or choose later.</p><div class="row">${TEAM.map(c=>`<button class="pick" data-friend="${c.id}"><b>${c.name}</b><br>${c.line}</button>`).join("")}</div><div class="row" style="margin-top:10px"><button class="go" id="later">Choose later</button></div>`;
-  sheet.querySelectorAll("[data-friend]").forEach(b => b.onclick = () => {
-    sheet.querySelectorAll(".pick").forEach(x=>x.classList.remove("on"));
-    b.classList.add("on");
-    closeIntro(b.dataset.friend);
-  });
+  cine.src = "album.jpg";
+  sheet.innerHTML = `<p>Choose a friend, or later</p><h2>Who walks with you?</h2><div class="row">${TEAM.map(c=>`<button class="pick" data-friend="${c.id}"><b>${c.name}</b><br>${c.line}</button>`).join("")}</div><div class="row" style="margin-top:10px"><button class="go" id="later">Choose later</button><button class="go" id="dig">Start the dig</button></div>`;
+  sheet.querySelectorAll("[data-friend]").forEach(b => b.onclick = () => closeIntro(b.dataset.friend));
   document.getElementById("later").onclick = () => closeIntro("");
+  document.getElementById("dig").onclick = () => closeIntro(localStorage.getItem("mm-friend")||"");
 }
 document.getElementById("skipIntro").onclick = () => closeIntro(localStorage.getItem("mm-friend")||"");
-if(localStorage.getItem("mm-intro-seen")==="1"){
-  closeIntro(localStorage.getItem("mm-friend")||"");
-} else welcome();
+if(localStorage.getItem("mm-intro-seen")==="1") closeIntro(localStorage.getItem("mm-friend")||"");
+else frame();
 </script>
 
 </body>
