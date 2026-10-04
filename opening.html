@@ -22,11 +22,11 @@ button img{width:54px;height:54px;border-radius:10px;object-fit:cover}
 </div>
 <script>
 const film = document.getElementById("film");
-const walks = {Jake:"cast/jake-enter.mp4",Juno:"cast/juno-enter.mp4",Juni:"cast/juni-enter.mp4",Ella:"cast/ella-enter.mp4",Sly:"cast/sly-enter.mp4",Lumi:"cast/lumi-enter.mp4"};
+const walks = {Jason:"cast/jason-enter.mp4",Jake:"cast/jake-enter.mp4",Juno:"cast/juno-enter.mp4",Junie:"cast/junie-enter.mp4",Ellah:"cast/ellah-enter.mp4"};
 const box = document.getElementById("choice");
 const beats = [
   {t:0, title:"The picture starts", options:[["Pick a friend","friend"],["Skip to a door","door"]]},
-  {t:12, title:"Who walks with you?", options:[["Jake","friend"],["Juno","friend"],["Juni","friend"],["Ella","friend"],["Sly","friend"],["Lumi","friend"]]},
+  {t:12, title:"Who walks with you?", options:[["Jason","friend"],["Jake","friend"],["Juno","friend"],["Junie","friend"],["Ellah","friend"]]},
   {t:24, title:"Choose a hallway", options:[["Library hall","room"],["Garden path","room"],["Kitchen wing","room"]]},
   {t:40, title:"A room is open", options:[["Read the shelf","room"],["Look for the far door","door"]]},
   {t:56, title:"The far door", options:[["Enter Mansion Millions","game"],["Keep exploring","room"]]}
@@ -36,17 +36,17 @@ function show(i){
   beat = i;
   const b = beats[i];
   film.currentTime = b.t;
-  const faces = {Jake:"cast/jake.jpg",Juno:"cast/juno.jpg",Juni:"cast/juni.jpg",Ella:"cast/ella.jpg",Sly:"cast/sly.jpg",Lumi:"cast/lumi.jpg"};
-  const walks = {Jake:"cast/jake-enter.mp4",Juno:"cast/juno-enter.mp4",Juni:"cast/juni-enter.mp4",Ella:"cast/ella-enter.mp4",Sly:"cast/sly-enter.mp4",Lumi:"cast/lumi-enter.mp4"};
+  const faces = {Jason:"cast/jason.jpg",Jake:"cast/jake.jpg",Juno:"cast/juno.jpg",Junie:"cast/junie.jpg",Ellah:"cast/ellah.jpg"};
+  const walks = {Jason:"cast/jason-enter.mp4",Jake:"cast/jake-enter.mp4",Juno:"cast/juno-enter.mp4",Junie:"cast/junie-enter.mp4",Ellah:"cast/ellah-enter.mp4"};
   box.innerHTML = `<h1>${b.title}</h1>` + b.options.map(([n,k])=>{
     const face = faces[n] ? `<img src="${faces[n]}" alt="${n}">` : "";
-    return `<button data-k="${k}" data-n="${n}">${face}<span>${n}</span></button>`;
+    const role = {Jason:"the player",Jake:"the snake",Juno:"the dog",Junie:"the cat",Ellah:"the owl"}[n] || ""; return `<button data-k="${k}" data-n="${n}">${face}<span>${n}<br><small>${role}</small></span></button>`;
   }).join("");
 }
 box.onclick = e => {
   const btn = e.target.closest("button");
   if(!btn) return;
-  if(btn.dataset.n && ["Jake","Juno","Juni","Ella","Sly","Lumi"].includes(btn.dataset.n)){
+  if(btn.dataset.n && ["Jason","Jake","Juno","Junie","Ellah"].includes(btn.dataset.n)){
     localStorage.setItem("mm-friend", btn.dataset.n);
     const v = document.createElement("video");
     v.id = "preview"; v.src = walks[btn.dataset.n]; v.autoplay = true; v.muted = true; v.playsInline = true;
