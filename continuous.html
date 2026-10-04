@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mansion Millions — Continuous</title>
+<link rel="stylesheet" href="journey.css">
+<style>
+  :root { --gold:#f0c14b; --ink:#2a1b16; --cream:#fff6e4; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:#102018; color:var(--cream); font-family:Georgia,serif; }
+  #world { height:100%; display:flex; flex-direction:column; max-width:480px; margin:0 auto; }
+  header { display:flex; justify-content:space-between; padding:10px 12px; }
+  .pill { background:#24160f; border:1px solid #f0c14b88; border-radius:999px; padding:6px 10px; }
+  #track { position:relative; flex:1; overflow:hidden; border-radius:22px; margin:0 10px; background:#143024 center/cover no-repeat; transition:background-image .6s ease; }
+  #token { position:absolute; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:50%; background:var(--gold); border:3px solid #fff; box-shadow:0 6px 0 #0006; z-index:2; }
+  .stop { position:absolute; width:18px; height:18px; margin:-9px; border-radius:50%; background:#fff6e4; border:2px solid #8c3048; }
+  #dock { display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:8px; padding:10px; }
+  button { font-family:inherit; border:0; border-radius:16px; font-weight:800; }
+  #roll { background:linear-gradient(#ffe7a0,var(--gold)); color:var(--ink); font-size:22px; padding:14px; }
+  .side { background:var(--cream); color:var(--ink); }
+  #shop { position:absolute; left:10px; right:10px; bottom:78px; background:rgba(255,246,228,.96); color:var(--ink); border-radius:16px; padding:10px; display:none; }
+  #shop.on { display:block; }
+  #float { position:absolute; left:50%; top:30%; transform:translateX(-50%); font-size:28px; font-weight:800; color:#fff; text-shadow:0 3px 0 #000; opacity:0; }
+</style>
+</head>
+<body>
+<div id="world">
+  <header>
+    <div class="pill" id="level">Level 1 · Grounds</div>
+    <div class="pill">$ <b id="cash">20000</b></div>
+    <div class="pill">dice <b id="dice">12</b></div>
+  </header>
+  <div id="track">
+    <div id="token"></div>
+    <div id="float"></div>
+    <div id="shop"></div>
+  </div>
+  <div id="dock">
+    <button class="side" id="buy">Buy</button>
+    <button id="roll">ROLL</button>
+    <button class="side" id="next">Next level</button>
+  </div>
+</div>
+<script>
+const LEVELS = [
+  { name:"Grounds", img:"explore.jpg", stops:["Gate","Fountain","Hedge","Bench","Lantern"] },
+  { name:"Wings", img:"board.jpg", stops:["Kitchen","Garden","Library","Ballroom","Stables"] },
+  { name:"Vault night", img:"reward.jpg", stops:["Dome","Music","Portrait","Goblet","Vault"] }
+];
+let G = JSON.parse(localStorage.getItem("mm-cont")||"null") || { cash:20000, dice:12, level:0, pos:0, owned:{} };
+const track = document.getElementById("track");
+const token = document.getElementById("token");
+function key(i){ return G.level+"-"+i; }
+function layout(){
+  const lv = LEVELS[G.level];
+  track.style.backgroundImage = "url("+lv.img+")";
+  document.getElementById("level").textContent = "Level "+(G.level+1)+" · "+lv.name;
+  document.getElementById("cash").textContent = G.cash.toLocaleString();
+  document.getElementById("dice").textContent = G.dice;
+  track.querySelectorAll(".stop").forEach(n=>n.remove());
+  lv.stops.forEach((name,i)=>{
+    const el = document.createElement("div");
+    el.className = "stop";
+    const p = spot(i, lv.stops.length);
+    el.style.left = p.x+"%"; el.style.top = p.y+"%";
+    el.title = name;
+    el.style.background = G.owned[key(i)] ? "#f0c14b" : "#fff6e4";
+    track.appendChild(el);
+  });
+  const p = spot(G.pos, lv.stops.length);
+  token.style.left = p.x+"%"; token.style.top = p.y+"%";
+}
+function spot(i,n){
+  const a = (Math.PI*1.15) + (i/(n-1))*(Math.PI*1.5);
+  return { x: 50+Math.cos(a)*34, y: 52+Math.sin(a)*30 };
+}
+function glide(steps, done){
+  const lv = LEVELS[G.level];
+  const start = G.pos;
+  const t0 = performance.now();
+  const dur = 500 + steps*180;
+  function frame(now){
+    const k = Math.min(1,(now-t0)/dur);
+    const e = 1-Math.pow(1-k,3);
+    const along = e*steps;
+    const seg = Math.min(steps-1, Math.floor(along));
+    const a = spot((start+seg)%lv.stops.length, lv.stops.length);
+    const b = spot((start+seg+1)%lv.stops.length, lv.stops.length);
+    const f = along-seg;
+    token.style.left = (a.x+(b.x-a.x)*f)+"%";
+    token.style.top = (a.y+(b.y-a.y)*f)+"%";
+    if(k<1) requestAnimationFrame(frame);
+    else { G.pos = (start+steps)%lv.stops.length; done(); }
+  }
+  requestAnimationFrame(frame);
+}
+function pop(text){
+  const f = document.getElementById("float");
+  f.textContent = text; f.style.opacity = 1; f.style.top = "30%";
+  setTimeout(()=>{ f.style.top = "18%"; f.style.opacity = 0; }, 40);
+}
+document.getElementById("roll").onclick = () => {
+  if(G.dice<=0) return;
+  G.dice--; layout();
+  const n = 1+Math.floor(Math.random()*6);
+  document.getElementById("roll").textContent = n;
+  glide(n, () => {
+    document.getElementById("roll").textContent = "ROLL";
+    const pay = 600 + G.level*400 + (G.owned[key(G.pos)]?500:0);
+    G.cash += pay;
+    pop("+"+pay.toLocaleString()+"  "+LEVELS[G.level].stops[G.pos]);
+    localStorage.setItem("mm-cont", JSON.stringify(G));
+    layout();
+  });
+};
+document.getElementById("buy").onclick = () => {
+  const name = LEVELS[G.level].stops[G.pos];
+  const price = 2500*(G.level+1);
+  const shop = document.getElementById("shop");
+  shop.classList.add("on");
+  shop.innerHTML = `<b>${name}</b><p>${G.owned[key(G.pos)]?"Owned. It pays extra when you land.":"Buy this stop for $"+price.toLocaleString()+". "}</p><button id="doBuy">${G.owned[key(G.pos)]?"Owned":"Buy"}</button> <button id="close">Close</button>`;
+  document.getElementById("close").onclick = () => shop.classList.remove("on");
+  document.getElementById("doBuy").onclick = () => {
+    if(G.owned[key(G.pos)] || G.cash<price) return;
+    G.cash -= price; G.owned[key(G.pos)] = true;
+    localStorage.setItem("mm-cont", JSON.stringify(G));
+    shop.classList.remove("on"); pop("Bought "+name); layout();
+  };
+};
+document.getElementById("next").onclick = () => {
+  if(G.level>=LEVELS.length-1){ pop("Vault reached"); return; }
+  G.level++; G.pos = 0; G.dice += 3;
+  localStorage.setItem("mm-cont", JSON.stringify(G));
+  pop("Level "+(G.level+1));
+  layout();
+};
+layout();
+</script>
+<script src="journey.js"></script>
+</body>
+</html>
