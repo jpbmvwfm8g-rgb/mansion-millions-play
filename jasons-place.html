@@ -3,75 +3,69 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1a120c">
-<title>Jason's Place — Mansion Millions</title>
-<meta name="description" content="Jason's Place is the mansion board. Roll, build the wings, and hunt the night with Jason, Juno, Juni, Ella, Sly, and Lumi.">
-<style>
-:root{--ink:#2a1b16;--gold:#f0c14b;--cream:#fff6e4;--wine:#8c3048}
-*{box-sizing:border-box}html,body{margin:0;background:#140e0c;color:var(--cream);font-family:Georgia,Palatino,serif}
-a{color:inherit}img{max-width:100%;display:block}
-.nav{display:flex;gap:14px;align-items:center;padding:14px 18px}
-.brand{font-weight:700;text-decoration:none;font-size:20px}
-.brand small{display:block;font:700 10px system-ui;letter-spacing:.14em;color:var(--gold)}
-.links{margin-left:auto;display:flex;gap:12px;font:800 12px system-ui;letter-spacing:.06em;text-transform:uppercase}
-.links a{text-decoration:none}
-.hero{position:relative;margin:0 12px;border-radius:24px;overflow:hidden}
-.hero img{width:100%;min-height:420px;object-fit:cover}
-.hero div{position:absolute;left:16px;right:16px;bottom:16px}
-.hero h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.9;text-shadow:0 6px 18px #000}
-.hero p{margin:8px 0 12px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 18px;border-radius:16px;background:linear-gradient(#ffe7a0,var(--gold));color:var(--ink);font-weight:800;text-decoration:none}
-.wrap{width:min(980px,94vw);margin:22px auto}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.card{background:var(--cream);color:var(--ink);border-radius:18px;padding:14px;text-decoration:none}
-.card b{display:block;font-size:22px;margin:4px 0}
-.card span{color:#6d5848}
-.scenes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.scenes img{border-radius:18px;width:100%}
-footer{padding:28px 16px 48px;text-align:center;color:#cbbba6}
-@media(max-width:800px){.grid,.scenes{grid-template-columns:1fr}.links{display:none}}
-</style>
+<title>Jason's Place</title>
 <link rel="stylesheet" href="journey.css">
+<style>
+  :root { --gold:#f0c14b; --ink:#2a1b16; --cream:#fff6e4; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:#140e0c; color:var(--cream); font-family:Georgia,serif; }
+  #house { height:100%; max-width:480px; margin:0 auto; display:flex; flex-direction:column; }
+  #room { flex:1; margin:10px; border-radius:22px; background:#123024 center/cover no-repeat; position:relative; overflow:hidden; transition:background-image .55s ease; }
+  #room:after { content:""; position:absolute; inset:0; background:linear-gradient(transparent 40%, rgba(12,8,6,.82)); }
+  #caption { position:absolute; left:14px; right:14px; bottom:14px; z-index:1; }
+  #caption p { margin:0; letter-spacing:.14em; text-transform:uppercase; font:700 11px system-ui; color:var(--gold); }
+  #caption h1 { margin:4px 0; font-size:34px; line-height:.95; }
+  #doors { display:flex; gap:8px; overflow:auto; padding:0 10px 14px; }
+  #doors button, #go { border:0; border-radius:14px; padding:12px; font-family:inherit; font-weight:800; background:#fff6e4; color:var(--ink); }
+  #doors button.on { background:var(--gold); }
+  #go { display:none; width:calc(100% - 20px); margin:0 10px 12px; background:linear-gradient(#ffe7a0,#f0c14b); }
+  #go.on { display:block; }
+  .book { background:rgba(255,246,228,.94); color:var(--ink); border-radius:12px; padding:8px; margin-top:8px; }
+</style>
 </head>
 <body>
-<nav class="nav">
-  <a class="brand" href="jasons-place.html">Jason's Place<small>Mansion Millions</small></a>
-  <div class="links">
-    <a href="index.html">Roll</a>
-    <a href="#wings">Wings</a>
-    <a href="store.html">Store</a>
+<div id="house">
+  <div id="room">
+    <div id="caption"></div>
   </div>
-</nav>
-<header class="hero">
-  <img src="board.jpg" alt="The mansion board at golden hour">
-  <div>
-    <p>The house is a board tonight</p>
-    <h1>Jason's Place</h1>
-    <a class="btn" href="continuous.html">Start the continuous journey</a>
-  </div>
-</header>
-<main class="wrap">
-  <h2>Six friends. Eight wings.</h2>
-  <div class="grid" id="wings">
-    <a class="card" href="index.html"><span>Jason</span><b>Quiet door</b><span>He names the tile you already tried.</span></a>
-    <a class="card" href="index.html"><span>Juno</span><b>Paw prints</b><span>She flashes the trail before it hides.</span></a>
-    <a class="card" href="index.html"><span>Juni</span><b>Bookshelf</b><span>The pattern step is on the library tile.</span></a>
-    <a class="card" href="index.html"><span>Ella</span><b>Stars</b><span>The observatory pays when the sky is early.</span></a>
-    <a class="card" href="index.html"><span>Sly</span><b>Code</b><span>First letter of the vault cipher.</span></a>
-    <a class="card" href="index.html"><span>Lumi</span><b>Lantern</b><span>Lights the next glowing spot.</span></a>
-  </div>
-  <h2>Scenes from the night</h2>
-  <div class="scenes">
-    <img src="reward.jpg" alt="Dice and goblet reward">
-    <img src="explore.jpg" alt="Garden hunt">
-    <img src="build.jpg" alt="Landmark upgrades">
-    <img src="album.jpg" alt="Sticker album">
-  </div>
-</main>
-<footer>
-  <p>Jason's Place and Mansion Millions share one estate. Mansion Dollars are fictional.</p>
-  <p><a href="index.html">Play</a> · <a href="store.html">Store</a></p>
-</footer>
+  <div id="doors"></div>
+  <button id="go">The Mansion Millions door</button>
+</div>
+<script>
+const ROOMS = [
+  { id:"foyer", name:"Foyer", kicker:"You arrive", img:"explore.jpg", line:"The doors close behind you. The house is already walking.", doors:["library","kitchen","garden"] },
+  { id:"library", name:"Library", kicker:"Books", img:"album.jpg", line:"Juni counts the shelves. Three books are awake.", doors:["foyer","story","art"], books:["Ellie and the Shadow Guardians","The night the fountain paid","Your child is the star"] },
+  { id:"kitchen", name:"Kitchen", kicker:"West wing", img:"build.jpg", line:"Cakes on the counter. A warm tile under the door.", doors:["foyer","music"] },
+  { id:"garden", name:"Garden", kicker:"Outside", img:"board.jpg", line:"The path glows. Coins sit in the fountain like they are waiting.", doors:["foyer","music"] },
+  { id:"story", name:"Storybook room", kicker:"A page turns", img:"reward.jpg", line:"Jeeves holds the place. The goblet is only a picture here.", doors:["library","vault"] },
+  { id:"art", name:"Art room", kicker:"Studio", img:"mansion-bg.jpg", line:"Draw the house before it draws you.", doors:["library"] },
+  { id:"music", name:"Music room", kicker:"A tune", img:"explore.jpg", line:"The music box is closed. Lumi lights the hall toward the last door.", doors:["kitchen","garden","vault"] },
+  { id:"vault", name:"The far door", kicker:"You found it", img:"board.jpg", line:"This door does not open a room. It opens Mansion Millions.", doors:["story","music"], game:true }
+];
+let seen = JSON.parse(localStorage.getItem("jp-seen")||"[]");
+let cur = "foyer";
+const room = document.getElementById("room");
+const cap = document.getElementById("caption");
+const doors = document.getElementById("doors");
+const go = document.getElementById("go");
+function show(id){
+  const r = ROOMS.find(x=>x.id===id);
+  cur = id;
+  if(!seen.includes(id)) seen.push(id);
+  localStorage.setItem("jp-seen", JSON.stringify(seen));
+  room.style.backgroundImage = "url("+r.img+")";
+  cap.innerHTML = `<p>${r.kicker} · ${seen.length}/${ROOMS.length} rooms</p><h1>${r.name}</h1><p>${r.line}</p>` +
+    (r.books? r.books.map(b=>`<div class="book">${b}</div>`).join("") : "");
+  doors.innerHTML = r.doors.map(d=>{
+    const n = ROOMS.find(x=>x.id===d);
+    return `<button data-go="${d}">${n.name}</button>`;
+  }).join("");
+  go.classList.toggle("on", !!r.game);
+}
+doors.onclick = e => { if(e.target.dataset.go) show(e.target.dataset.go); };
+go.onclick = () => { if(window.mmJourney) mmJourney("continuous.html","Mansion Millions","The far door opens onto the board.","board.jpg"); else location.href="continuous.html"; };
+show("foyer");
+</script>
 <script src="journey.js"></script>
 </body>
 </html>
