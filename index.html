@@ -39,21 +39,19 @@
   .note { font-size:14px; line-height:1.4; }
 
   #intro{position:fixed;inset:0;z-index:20;background:#140e0c;display:flex;align-items:flex-end;justify-content:center}
-  #cine{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.08);animation:ken 8s ease-in-out alternate infinite}
-  @keyframes ken{from{transform:scale(1)}to{transform:scale(1.08)}}
-  #intro .sheet{position:relative;width:min(480px,100%);background:linear-gradient(180deg,rgba(20,12,8,.2),rgba(20,12,8,.82));color:#fff6e4;border-radius:24px 24px 0 0;padding:16px 16px 22px;max-height:62vh;overflow:auto}
-  #intro h2{margin:0 0 6px;font-size:30px;text-shadow:0 4px 16px #000}
-  #intro p{margin:6px 0 12px;line-height:1.35}
-  .row{display:flex;gap:8px;flex-wrap:wrap}
-  .pick{flex:1 1 46%;text-align:left;border:0;background:rgba(255,246,228,.94);color:#2a1b16;border-radius:14px;padding:10px;font-family:inherit}
-  .skip{position:absolute;top:12px;right:12px;z-index:2;border:0;border-radius:999px;padding:8px 12px;background:#fff6e4;color:#2a1b16;font-weight:700}
+  #cine{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:ken 9s ease-in-out alternate infinite}
+  @keyframes ken{from{transform:scale(1)}to{transform:scale(1.06)}}
+  #intro .sheet{position:relative;width:min(480px,100%);background:rgba(255,246,228,.97);color:#2a1b16;border-radius:24px 24px 0 0;padding:16px 16px 22px;max-height:78vh;overflow:auto}
+  #intro h2{margin:0 0 6px;font-size:28px}
+  #intro label{display:block;font-size:13px;margin:8px 0 4px}
+  #intro input{width:100%;border:1px solid #ead7b4;border-radius:12px;padding:10px;font:inherit}
+  .err{color:#8c3048;font-size:13px}
 </style>
 </head>
 <body>
 
 <div id="intro">
-  <img id="cine" alt="" src="explore.jpg">
-  <button class="skip" id="skipIntro">Skip</button>
+  <img id="cine" alt="" src="board.jpg">
   <div class="sheet" id="introSheet"></div>
 </div>
 <div id="app">
@@ -181,54 +179,97 @@ hud();
 </script>
 
 <script>
-const TEAM = [
-  {id:"jason", name:"Jason", line:"Quiet door. He names the tile you already tried."},
-  {id:"juno", name:"Juno", line:"Paw prints. She flashes the trail before it hides."},
-  {id:"juni", name:"Juni", line:"Bookshelf. She knows which pattern is wrong."},
-  {id:"ella", name:"Ella", line:"Stars. The observatory pays when the sky is early."},
-  {id:"sly", name:"Sly", line:"Code. First letter of the vault cipher."},
-  {id:"lumi", name:"Lumi", line:"Lantern. She lights the next glowing spot."}
-];
-const SCENES = [
-  {img:"explore.jpg", kicker:"The picture starts", title:"The gates open", text:"The camera finds the path. Coins already glint in the fountain."},
-  {img:"board.jpg", kicker:"Mansion jaunt", title:"Eight wings, one night", text:"You stroll the gold path. Kitchen, garden, library, ballroom."},
-  {img:"reward.jpg", kicker:"Storybook", title:"Jeeves turns the page", text:"A dice falls into the goblet. The ghost butler points the way."},
-  {img:"explore.jpg", kicker:"Treasure hunt", title:"Dig where it glows", text:"Kids can hunt the key, the music box, and Aunt Millie's wink."}
-];
+const USERS_KEY = "mm-users";
+const SESSION_KEY = "mm-session";
+function users(){ try { return JSON.parse(localStorage.getItem(USERS_KEY)||"{}"); } catch(e){ return {}; } }
+function saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+async function hash(s){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+function today(){ return new Date().toISOString().slice(0,10); }
 const intro = document.getElementById("intro");
 const sheet = document.getElementById("introSheet");
 const cine = document.getElementById("cine");
-let scene = 0;
-function closeIntro(choice){
-  if(choice) localStorage.setItem("mm-friend", choice);
-  localStorage.setItem("mm-cine-seen", "1");
+function showAuth(mode){
+  cine.src = mode==="login" ? "reward.jpg" : "board.jpg";
+  sheet.innerHTML = `<p>Official mansion account</p><h2>${mode==="login"?"Welcome back":"Sign up to play"}</h2>
+    <p>${mode==="login"?"Log in to resume the estate you built.":"Create your account. The newsletter brings a daily allowance of mansion money."}</p>
+    ${mode==="signup"?'<label>Name</label><input id="nm" autocomplete="name">':""}
+    <label>Email</label><input id="em" type="email" autocomplete="username">
+    <label>Password</label><input id="pw" type="password" autocomplete="${mode==="login"?"current-password":"new-password"}">
+    ${mode==="signup"?'<label><input id="news" type="checkbox" checked> Send the mansion newsletter and my daily allowance</label>':""}
+    <p class="err" id="err"></p>
+    <div class="row"><button class="go" id="goAuth">${mode==="login"?"Log in":"Create account"}</button>
+    <button class="go" id="swap">${mode==="login"?"Need an account":"I already play"}</button></div>`;
+  document.getElementById("swap").onclick = () => showAuth(mode==="login"?"signup":"login");
+  document.getElementById("goAuth").onclick = () => mode==="login" ? login() : signup();
+}
+async function signup(){
+  const email = document.getElementById("em").value.trim().toLowerCase();
+  const name = document.getElementById("nm").value.trim();
+  const pw = document.getElementById("pw").value;
+  const news = document.getElementById("news").checked;
+  if(!email || !email.includes("@") || pw.length<6 || !name){ document.getElementById("err").textContent = "Name, a real email, and a password of 6 or more."; return; }
+  const all = users();
+  if(all[email]){ document.getElementById("err").textContent = "That email already has an estate. Log in."; return; }
+  all[email] = { name, email, pass: await hash(pw), news, created: Date.now(), lastAllowance: news? today(): "", friend:"", game:null, bought:[] };
+  saveUsers(all);
+  localStorage.setItem(SESSION_KEY, email);
+  enter(all[email]);
+}
+async function login(){
+  const email = document.getElementById("em").value.trim().toLowerCase();
+  const pw = document.getElementById("pw").value;
+  const all = users();
+  const u = all[email];
+  if(!u || u.pass !== await hash(pw)){ document.getElementById("err").textContent = "Email or password does not match."; return; }
+  localStorage.setItem(SESSION_KEY, email);
+  enter(u);
+}
+function enter(u){
+  if(u.news && u.lastAllowance !== today()){
+    if(typeof S !== "undefined"){ S.cash += 5000; }
+    u.lastAllowance = today();
+    u.allowanceNote = "Daily allowance: $5,000";
+  }
+  if(u.game && typeof S !== "undefined"){
+    S.cash = u.game.cash; S.dice = u.game.dice; S.pos = u.game.pos; S.lv = u.game.lv; S.stickers = u.game.stickers;
+    if(typeof hud === "function") hud();
+  } else if(u.allowanceNote && typeof S !== "undefined"){
+    if(typeof hud === "function") hud();
+  }
+  const all = users(); all[u.email] = u; saveUsers(all);
   intro.style.display = "none";
-  const who = localStorage.getItem("mm-friend");
-  const t = document.createElement("button");
-  t.className = "pill";
-  t.textContent = who ? "Friend: " + who : "Meet the team";
-  t.onclick = () => { intro.style.display = "flex"; meet(); };
-  document.querySelector("header").appendChild(t);
+  const bar = document.querySelector("header");
+  if(!document.getElementById("who")){
+    const t = document.createElement("button");
+    t.id = "who"; t.className = "pill"; t.textContent = u.name.split(" ")[0];
+    t.onclick = profile;
+    bar.appendChild(t);
+  }
+  if(u.allowanceNote) setTimeout(()=>alert(u.allowanceNote), 300);
 }
-function frame(){
-  const s = SCENES[scene];
-  cine.src = s.img;
-  sheet.innerHTML = `<p>${s.kicker}</p><h2>${s.title}</h2><p>${s.text}</p><div class="row"><button class="go" id="nextScene">${scene < SCENES.length-1 ? "Keep going" : "Meet the team"}</button></div>`;
-  document.getElementById("nextScene").onclick = () => {
-    if(scene < SCENES.length-1){ scene++; frame(); }
-    else meet();
-  };
+function profile(){
+  const email = localStorage.getItem(SESSION_KEY);
+  const u = users()[email];
+  if(!u) return;
+  const g = u.game || {};
+  alert(`${u.name}\n${u.email}\nFriend: ${u.friend||"not chosen"}\nCash saved: $${(g.cash||0).toLocaleString()}\nWings: ${g.lv?Object.entries(g.lv).filter(([,n])=>n>0).map(([k,n])=>k+" "+n).join(", ")||"foyer":"new"}\nNewsletter: ${u.news?"on":"off"}`);
 }
-function meet(){
-  cine.src = "album.jpg";
-  sheet.innerHTML = `<p>Choose a friend, or later</p><h2>Who walks with you?</h2><div class="row">${TEAM.map(c=>`<button class="pick" data-friend="${c.id}"><b>${c.name}</b><br>${c.line}</button>`).join("")}</div><div class="row" style="margin-top:10px"><button class="go" id="later">Choose later</button><button class="go" id="dig">Start the dig</button></div>`;
-  sheet.querySelectorAll("[data-friend]").forEach(b => b.onclick = () => closeIntro(b.dataset.friend));
-  document.getElementById("later").onclick = () => closeIntro("");
-  document.getElementById("dig").onclick = () => closeIntro(localStorage.getItem("mm-friend")||"");
+function persist(){
+  const email = localStorage.getItem(SESSION_KEY);
+  if(!email || typeof S === "undefined") return;
+  const all = users();
+  if(!all[email]) return;
+  all[email].game = { cash:S.cash, dice:S.dice, pos:S.pos, lv:S.lv, stickers:S.stickers };
+  all[email].friend = localStorage.getItem("mm-friend") || all[email].friend || "";
+  saveUsers(all);
 }
-document.getElementById("skipIntro").onclick = () => closeIntro(localStorage.getItem("mm-friend")||"");
-if(localStorage.getItem("mm-cine-seen")==="1") closeIntro(localStorage.getItem("mm-friend")||"");
-else frame();
+setInterval(persist, 2000);
+const session = localStorage.getItem(SESSION_KEY);
+if(session && users()[session]) enter(users()[session]);
+else showAuth("signup");
 </script>
 
 </body>
