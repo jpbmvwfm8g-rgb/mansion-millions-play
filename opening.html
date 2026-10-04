@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Opening — Jason's Place</title>
+<style>
+  html,body{margin:0;height:100%;background:#140e0c;color:#fff6e4;font-family:Georgia,serif}
+  #stage{max-width:480px;height:100%;margin:0 auto;position:relative;background:#000}
+  video{width:100%;height:100%;object-fit:cover}
+  #choice{position:absolute;left:0;right:0;bottom:0;padding:14px;background:linear-gradient(transparent,#140e0c)}
+  button,a.b{display:block;width:100%;margin:6px 0;border:0;border-radius:14px;padding:12px;background:#fff6e4;color:#2a1b16;font-weight:800;text-decoration:none;text-align:left;font-family:inherit}
+  h1{margin:0 0 8px;font-size:28px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="film" playsinline autoplay muted loop src="opening.mp4"></video>
+  <div id="choice"></div>
+</div>
+<script>
+const film = document.getElementById("film");
+const box = document.getElementById("choice");
+const beats = [
+  {t:0, title:"The picture starts", options:[["Pick a friend","friend"],["Skip to a door","door"]]},
+  {t:12, title:"Who walks with you?", options:[["Jason","friend"],["Juno","friend"],["Juni","friend"],["Ella","friend"],["Sly","friend"],["Lumi","friend"]]},
+  {t:24, title:"Choose a hallway", options:[["Library hall","room"],["Garden path","room"],["Kitchen wing","room"]]},
+  {t:40, title:"A room is open", options:[["Read the shelf","room"],["Look for the far door","door"]]},
+  {t:56, title:"The far door", options:[["Enter Mansion Millions","game"],["Keep exploring","room"]]}
+];
+let beat = 0;
+function show(i){
+  beat = i;
+  const b = beats[i];
+  film.currentTime = b.t;
+  box.innerHTML = `<h1>${b.title}</h1>` + b.options.map(([n,k])=>`<button data-k="${k}" data-n="${n}">${n}</button>`).join("");
+}
+box.onclick = e => {
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  if(btn.dataset.n && ["Jason","Juno","Juni","Ella","Sly","Lumi"].includes(btn.dataset.n)) localStorage.setItem("mm-friend", btn.dataset.n);
+  if(btn.dataset.k==="game"){ location.href = "continuous.html"; return; }
+  show(Math.min(beats.length-1, beat+1));
+};
+film.ontimeupdate = () => {
+  const next = beats[beat+1];
+  if(next && film.currentTime >= next.t) show(beat+1);
+};
+show(0);
+</script>
+</body>
+</html>
