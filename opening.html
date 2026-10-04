@@ -23,7 +23,7 @@ const film = document.getElementById("film");
 const box = document.getElementById("choice");
 const beats = [
   {t:0, title:"The picture starts", options:[["Pick a friend","friend"],["Skip to a door","door"]]},
-  {t:12, title:"Who walks with you?", options:[["Jason","friend"],["Juno","friend"],["Juni","friend"],["Ella","friend"],["Sly","friend"],["Lumi","friend"]]},
+  {t:12, title:"Who walks with you?", options:[["Jake","friend"],["Juno","friend"],["Juni","friend"],["Ella","friend"],["Sly","friend"],["Lumi","friend"]]},
   {t:24, title:"Choose a hallway", options:[["Library hall","room"],["Garden path","room"],["Kitchen wing","room"]]},
   {t:40, title:"A room is open", options:[["Read the shelf","room"],["Look for the far door","door"]]},
   {t:56, title:"The far door", options:[["Enter Mansion Millions","game"],["Keep exploring","room"]]}
@@ -38,7 +38,7 @@ function show(i){
 box.onclick = e => {
   const btn = e.target.closest("button");
   if(!btn) return;
-  if(btn.dataset.n && ["Jason","Juno","Juni","Ella","Sly","Lumi"].includes(btn.dataset.n)) localStorage.setItem("mm-friend", btn.dataset.n);
+  if(btn.dataset.n && ["Jake","Juno","Juni","Ella","Sly","Lumi"].includes(btn.dataset.n)) localStorage.setItem("mm-friend", btn.dataset.n);
   if(btn.dataset.k==="game"){ location.href = "continuous.html"; return; }
   show(Math.min(beats.length-1, beat+1));
 };
