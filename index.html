@@ -124,7 +124,7 @@ const STOPS = [
   {n:"Falls", x:80, y:46}, {n:"Court", x:70, y:68}
 ];
 const WINGS = ["Fountain","Kitchen","Garden","Library","Ballroom"];
-let S = JSON.parse(localStorage.getItem("mm3")||"null") || {cash:25000,dice:20,pos:0,lv:{Fountain:1,Kitchen:0,Garden:0,Library:0,Ballroom:0},stickers:0};
+let S = JSON.parse(localStorage.getItem("mm3")||"null") || {cash:250000,dice:20,pos:0,lv:{Fountain:1,Kitchen:0,Garden:0,Library:0,Ballroom:0},stickers:0};
 const $ = id => document.getElementById(id);
 function money(n){ return Math.round(n).toLocaleString(); }
 function hud(){
@@ -239,13 +239,13 @@ function showAuth(mode){
       : "Use the same email and password from this phone. Your cash, dice, upgrades, and stickers come back with you."}</p>
     <ul>
       ${signup
-        ? "<li>Name on the estate</li><li>Email is the login</li><li>Password, 6 or more characters</li><li>Newsletter: $5,000 mansion money each day</li><li>Progress stays on this phone</li>"
+        ? "<li>Name on the estate</li><li>Email is the login</li><li>Password, 6 or more characters</li><li>Newsletter: $50,000 mansion money each day</li><li>Progress stays on this phone</li>"
         : "<li>Email you signed up with</li><li>Password for this estate</li><li>Resume the board where you stopped</li><li>See wings, friend, and allowance in your name</li>"}
     </ul>
     ${signup?'<label>Player name</label><input id="nm" autocomplete="name" placeholder="The name on the door">':""}
     <label>Email</label><input id="em" type="email" autocomplete="username" placeholder="you@email.com">
     <label>Password</label><input id="pw" type="password" autocomplete="${signup?"new-password":"current-password"}" placeholder="${signup?"At least 6 characters":"Your password"}">
-    ${signup?'<label class="check"><input id="news" type="checkbox" checked> Send the mansion newsletter. This unlocks the daily allowance of $5,000. Mansion money is fictional.</label>':""}
+    ${signup?'<label class="check"><input id="news" type="checkbox" checked> Send the mansion newsletter. This unlocks the daily allowance of $50,000. Mansion money is fictional.</label>':""}
     <p class="fine">${signup?"Already have an estate on this phone? Log in instead.":"New player? Create an account before the first roll."}</p>
     <p class="err" id="err"></p>
     <div class="row"><button class="go" id="goAuth">${signup?"Create account and enter":"Log in and resume"}</button>
@@ -277,9 +277,9 @@ async function login(){
 }
 function enter(u){
   if(u.news && u.lastAllowance !== today()){
-    if(typeof S !== "undefined"){ S.cash += 5000; }
+    if(typeof S !== "undefined"){ S.cash += 50000; }
     u.lastAllowance = today();
-    u.allowanceNote = "Daily allowance: $5,000";
+    u.allowanceNote = "Daily allowance: $50,000";
   }
   if(u.game && typeof S !== "undefined"){
     S.cash = u.game.cash; S.dice = u.game.dice; S.pos = u.game.pos; S.lv = u.game.lv; S.stickers = u.game.stickers;

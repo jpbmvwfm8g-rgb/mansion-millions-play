@@ -48,15 +48,16 @@ const LEVELS = [
   { name:"Wings", img:"board.jpg", stops:["Kitchen","Garden","Library","Ballroom","Stables"] },
   { name:"Vault night", img:"reward.jpg", stops:["Dome","Music","Portrait","Goblet","Vault"] }
 ];
-let G = JSON.parse(localStorage.getItem("mm-cont")||"null") || { cash:20000, dice:12, level:0, pos:0, owned:{} };
+let G = JSON.parse(localStorage.getItem("mm-cont")||"null") || { cash:50000000, dice:12, level:0, pos:0, owned:{} };
 const track = document.getElementById("track");
 const token = document.getElementById("token");
+function money(n){ if(n>=1e12) return (n/1e12).toFixed(1)+" trillion"; if(n>=1e9) return (n/1e9).toFixed(1)+" billion"; if(n>=1e6) return (n/1e6).toFixed(1)+" million"; return n.toLocaleString(); }
 function key(i){ return G.level+"-"+i; }
 function layout(){
   const lv = LEVELS[G.level];
   track.style.backgroundImage = "url("+lv.img+")";
   document.getElementById("level").textContent = "Level "+(G.level+1)+" · "+lv.name;
-  document.getElementById("cash").textContent = G.cash.toLocaleString();
+  document.getElementById("cash").textContent = money(G.cash);
   document.getElementById("dice").textContent = G.dice;
   track.querySelectorAll(".stop").forEach(n=>n.remove());
   lv.stops.forEach((name,i)=>{
@@ -107,19 +108,19 @@ document.getElementById("roll").onclick = () => {
   document.getElementById("roll").textContent = n;
   glide(n, () => {
     document.getElementById("roll").textContent = "ROLL";
-    const pay = 600 + G.level*400 + (G.owned[key(G.pos)]?500:0);
+    const pay = [250000, 2000000, 15000000][G.level] * (G.owned[key(G.pos)]?3:1);
     G.cash += pay;
-    pop("+"+pay.toLocaleString()+"  "+LEVELS[G.level].stops[G.pos]);
+    pop("+"+money(pay)+"  "+LEVELS[G.level].stops[G.pos]);
     localStorage.setItem("mm-cont", JSON.stringify(G));
     layout();
   });
 };
 document.getElementById("buy").onclick = () => {
   const name = LEVELS[G.level].stops[G.pos];
-  const price = 2500*(G.level+1);
+  const price = [5000000, 250000000, 2000000000][G.level];
   const shop = document.getElementById("shop");
   shop.classList.add("on");
-  shop.innerHTML = `<b>${name}</b><p>${G.owned[key(G.pos)]?"Owned. It pays extra when you land.":"Buy this stop for $"+price.toLocaleString()+". "}</p><button id="doBuy">${G.owned[key(G.pos)]?"Owned":"Buy"}</button> <button id="close">Close</button>`;
+  shop.innerHTML = `<b>${name}</b><p>${G.owned[key(G.pos)]?"Owned. It pays extra when you land.":"Buy this stop for "+money(price)+". "}</p><button id="doBuy">${G.owned[key(G.pos)]?"Owned":"Buy"}</button> <button id="close">Close</button>`;
   document.getElementById("close").onclick = () => shop.classList.remove("on");
   document.getElementById("doBuy").onclick = () => {
     if(G.owned[key(G.pos)] || G.cash<price) return;
