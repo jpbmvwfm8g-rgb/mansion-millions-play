@@ -1,16 +1,9 @@
 {
-  "id": "./",
   "name": "Mansion Millions",
-  "short_name": "Mansion Millions",
-  "description": "Explore Jason's Place with six companions and twelve card challenges. Fictional Mansion Dollars.",
-  "start_url": "./",
-  "scope": "./",
+  "short_name": "Mansion",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#070b12",
-  "theme_color": "#070b12",
-  "icons": [
-    {"src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any"},
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
-  ]
+  "background_color": "#140e0c",
+  "theme_color": "#1a120c",
+  "icons": [{"src":"icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png"}]
 }
