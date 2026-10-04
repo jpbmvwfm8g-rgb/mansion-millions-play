@@ -201,7 +201,7 @@ const cine = document.getElementById("cine");
 let scene = 0;
 function closeIntro(choice){
   if(choice) localStorage.setItem("mm-friend", choice);
-  localStorage.setItem("mm-intro-seen", "1");
+  localStorage.setItem("mm-cine-seen", "1");
   intro.style.display = "none";
   const who = localStorage.getItem("mm-friend");
   const t = document.createElement("button");
@@ -227,7 +227,7 @@ function meet(){
   document.getElementById("dig").onclick = () => closeIntro(localStorage.getItem("mm-friend")||"");
 }
 document.getElementById("skipIntro").onclick = () => closeIntro(localStorage.getItem("mm-friend")||"");
-if(localStorage.getItem("mm-intro-seen")==="1") closeIntro(localStorage.getItem("mm-friend")||"");
+if(localStorage.getItem("mm-cine-seen")==="1") closeIntro(localStorage.getItem("mm-friend")||"");
 else frame();
 </script>
 
