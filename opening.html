@@ -17,7 +17,7 @@ button img{width:54px;height:54px;border-radius:10px;object-fit:cover}
 </head>
 <body>
 <div id="stage">
-  <video id="film" playsinline autoplay muted loop src="opening.mp4"></video>
+  <video id="film" playsinline autoplay muted loop src="meet-cast.mp4"></video>
   <div id="choice"></div>
 </div>
 <script>
@@ -25,7 +25,7 @@ const film = document.getElementById("film");
 const walks = {Jason:"cast/jason-enter.mp4",Jake:"cast/jake-enter.mp4",Juno:"cast/juno-enter.mp4",Junie:"cast/junie-enter.mp4",Ellah:"cast/ellah-enter.mp4"};
 const box = document.getElementById("choice");
 const beats = [
-  {t:0, title:"The picture starts", options:[["Pick a friend","friend"],["Skip to a door","door"]]},
+  {t:0, title:"Meet the house", options:[["Pick a friend","friend"],["Skip to a door","door"]]},
   {t:12, title:"Who walks with you?", options:[["Jason","friend"],["Jake","friend"],["Juno","friend"],["Junie","friend"],["Ellah","friend"]]},
   {t:24, title:"Choose a hallway", options:[["Library hall","room"],["Garden path","room"],["Kitchen wing","room"]]},
   {t:40, title:"A room is open", options:[["Read the shelf","room"],["Look for the far door","door"]]},
