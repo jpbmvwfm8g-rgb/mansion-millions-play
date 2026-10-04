@@ -26,7 +26,7 @@
 <body>
 <div id="hall">
   <p>Jason's Place</p>
-  <h1>What do you want tonight?</h1>
+  <div class="banner" style="background:linear-gradient(#ffe7a0,#f0c14b);color:#2a1b16;border-radius:16px;padding:12px;margin:10px 0"><b>Store is open.</b><br>Books, games, free daily allowance, monthly, yearly, house, and unlimited. <a href="store.html">See what we sell</a></div><h1>What do you want tonight?</h1>
   <p>Skip the walk, or take it. Ten doors. None of them are required.</p>
   <div class="grid" id="choices"></div>
   <div id="room">
@@ -47,7 +47,9 @@ const CHOICES = [
   { id:"shop", name:"Buy something", note:"The store", img:"album.jpg", line:"Stories you can keep.", go:"store.html", label:"Open the store" },
   { id:"free", name:"Try what is free", note:"No signup", img:"explore.jpg", line:"The grounds level is free. One roll, no account.", go:"continuous.html", label:"Try the free roll" },
   { id:"signup", name:"Sign up", note:"Daily allowance", img:"build.jpg", line:"An account keeps your wings and pays $5,000 mansion money a day if you take the newsletter.", go:"index.html", label:"Create an account" },
-  { id:"soon", name:"What's coming", note:"Not open yet", img:"mansion-bg.jpg", line:"Next: a shared house code, sticker packs, and a night race across the garden." }
+  { id:"soon", name:"What's coming", note:"Not open yet", img:"mansion-bg.jpg", line:"Next: a shared house code, sticker packs, and a night race across the garden." },
+  { id:"news", name:"News releases", note:"From the house", img:"mansion-bg.jpg", line:"October 1: books and play share one mansion. September 30: a new wing. September 29: Mansion Millions became a night you can walk." },
+  { id:"press", name:"In the press", note:"ARQS Press", img:"album.jpg", line:"ARQS Press publishes the stories. The store lists every version: e-book, personalized book, and the play memberships." }
 ];
 const hall = document.getElementById("choices");
 const room = document.getElementById("room");
