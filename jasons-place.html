@@ -8,64 +8,89 @@
 <style>
   :root { --gold:#f0c14b; --ink:#2a1b16; --cream:#fff6e4; }
   * { box-sizing:border-box; }
-  html,body { margin:0; height:100%; background:#140e0c; color:var(--cream); font-family:Georgia,serif; }
-  #house { height:100%; max-width:480px; margin:0 auto; display:flex; flex-direction:column; }
-  #room { flex:1; margin:10px; border-radius:22px; background:#123024 center/cover no-repeat; position:relative; overflow:hidden; transition:background-image .55s ease; }
-  #room:after { content:""; position:absolute; inset:0; background:linear-gradient(transparent 40%, rgba(12,8,6,.82)); }
-  #caption { position:absolute; left:14px; right:14px; bottom:14px; z-index:1; }
-  #caption p { margin:0; letter-spacing:.14em; text-transform:uppercase; font:700 11px system-ui; color:var(--gold); }
-  #caption h1 { margin:4px 0; font-size:34px; line-height:.95; }
-  #doors { display:flex; gap:8px; overflow:auto; padding:0 10px 14px; }
-  #doors button, #go { border:0; border-radius:14px; padding:12px; font-family:inherit; font-weight:800; background:#fff6e4; color:var(--ink); }
-  #doors button.on { background:var(--gold); }
-  #go { display:none; width:calc(100% - 20px); margin:0 10px 12px; background:linear-gradient(#ffe7a0,#f0c14b); }
-  #go.on { display:block; }
-  .book { background:rgba(255,246,228,.94); color:var(--ink); border-radius:12px; padding:8px; margin-top:8px; }
+  html,body { margin:0; min-height:100%; background:#140e0c; color:var(--cream); font-family:Georgia,serif; }
+  #hall { max-width:480px; margin:0 auto; padding:14px 12px 28px; }
+  h1 { font-size:36px; line-height:.95; margin:8px 0; }
+  p { color:#f3e6cf; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  button, a.opt { display:block; text-align:left; text-decoration:none; border:0; border-radius:16px; padding:12px; background:#fff6e4; color:var(--ink); font-family:inherit; }
+  button b, a.opt b { display:block; font-size:16px; }
+  button span, a.opt span { font-size:12px; color:#6d5848; }
+  #room { display:none; }
+  #room.on { display:block; }
+  #scene { min-height:280px; border-radius:18px; background:#123024 center/cover no-repeat; padding:14px; display:flex; align-items:flex-end; }
+  #scene h2 { margin:0; text-shadow:0 4px 12px #000; }
+  .back { margin-top:10px; background:var(--gold); color:var(--ink); font-weight:800; width:100%; }
 </style>
 </head>
 <body>
-<div id="house">
+<div id="hall">
+  <p>Jason's Place</p>
+  <h1>What do you want tonight?</h1>
+  <p>Skip the walk, or take it. Ten doors. None of them are required.</p>
+  <div class="grid" id="choices"></div>
   <div id="room">
-    <div id="caption"></div>
+    <div id="scene"><h2 id="title"></h2></div>
+    <p id="line"></p>
+    <div id="extra"></div>
+    <button class="back" id="back">Back to the choices</button>
   </div>
-  <div id="doors"></div>
-  <button id="go">The Mansion Millions door</button>
 </div>
 <script>
-const ROOMS = [
-  { id:"foyer", name:"Foyer", kicker:"You arrive", img:"explore.jpg", line:"The doors close behind you. The house is already walking.", doors:["library","kitchen","garden"] },
-  { id:"library", name:"Library", kicker:"Books", img:"album.jpg", line:"Juni counts the shelves. Three books are awake.", doors:["foyer","story","art"], books:["Ellie and the Shadow Guardians","The night the fountain paid","Your child is the star"] },
-  { id:"kitchen", name:"Kitchen", kicker:"West wing", img:"build.jpg", line:"Cakes on the counter. A warm tile under the door.", doors:["foyer","music"] },
-  { id:"garden", name:"Garden", kicker:"Outside", img:"board.jpg", line:"The path glows. Coins sit in the fountain like they are waiting.", doors:["foyer","music"] },
-  { id:"story", name:"Storybook room", kicker:"A page turns", img:"reward.jpg", line:"Jeeves holds the place. The goblet is only a picture here.", doors:["library","vault"] },
-  { id:"art", name:"Art room", kicker:"Studio", img:"mansion-bg.jpg", line:"Draw the house before it draws you.", doors:["library"] },
-  { id:"music", name:"Music room", kicker:"A tune", img:"explore.jpg", line:"The music box is closed. Lumi lights the hall toward the last door.", doors:["kitchen","garden","vault"] },
-  { id:"vault", name:"The far door", kicker:"You found it", img:"board.jpg", line:"This door does not open a room. It opens Mansion Millions.", doors:["story","music"], game:true }
+const CHOICES = [
+  { id:"skip", name:"Skip the house", note:"Go straight in", img:"board.jpg", line:"The walk can wait. The board is open.", go:"continuous.html", label:"Enter Mansion Millions" },
+  { id:"explore", name:"Explore the house", note:"Rooms first", img:"explore.jpg", line:"Foyer, library, kitchen, garden, music. The game door is at the far end.", go:"#walk" },
+  { id:"game", name:"Mansion Millions", note:"The game door", img:"board.jpg", line:"Roll, buy stops, and move through three levels.", go:"continuous.html", label:"Open the game" },
+  { id:"character", name:"Choose a friend", note:"Build your character", img:"reward.jpg", line:"Pick who walks with you. You can change them later.", friends:["Jason","Juno","Juni","Ella","Sly","Lumi"] },
+  { id:"story", name:"Storybook room", note:"A page, not a game", img:"reward.jpg", line:"Jeeves holds the place. Read before you roll.", go:"#story" },
+  { id:"books", name:"Books", note:"The library", img:"album.jpg", line:"Three books are awake on the shelf.", books:["Ellie and the Shadow Guardians","The night the fountain paid","Your Child Is the Star"] },
+  { id:"shop", name:"Buy something", note:"The store", img:"album.jpg", line:"Stories you can keep.", go:"store.html", label:"Open the store" },
+  { id:"free", name:"Try what is free", note:"No signup", img:"explore.jpg", line:"The grounds level is free. One roll, no account.", go:"continuous.html", label:"Try the free roll" },
+  { id:"signup", name:"Sign up", note:"Daily allowance", img:"build.jpg", line:"An account keeps your wings and pays $5,000 mansion money a day if you take the newsletter.", go:"index.html", label:"Create an account" },
+  { id:"soon", name:"What's coming", note:"Not open yet", img:"mansion-bg.jpg", line:"Next: a shared house code, sticker packs, and a night race across the garden." }
 ];
-let seen = JSON.parse(localStorage.getItem("jp-seen")||"[]");
-let cur = "foyer";
+const hall = document.getElementById("choices");
 const room = document.getElementById("room");
-const cap = document.getElementById("caption");
-const doors = document.getElementById("doors");
-const go = document.getElementById("go");
-function show(id){
-  const r = ROOMS.find(x=>x.id===id);
-  cur = id;
-  if(!seen.includes(id)) seen.push(id);
-  localStorage.setItem("jp-seen", JSON.stringify(seen));
-  room.style.backgroundImage = "url("+r.img+")";
-  cap.innerHTML = `<p>${r.kicker} · ${seen.length}/${ROOMS.length} rooms</p><h1>${r.name}</h1><p>${r.line}</p>` +
-    (r.books? r.books.map(b=>`<div class="book">${b}</div>`).join("") : "");
-  doors.innerHTML = r.doors.map(d=>{
-    const n = ROOMS.find(x=>x.id===d);
-    return `<button data-go="${d}">${n.name}</button>`;
-  }).join("");
-  go.classList.toggle("on", !!r.game);
+hall.innerHTML = CHOICES.map(c=>`<button data-id="${c.id}"><b>${c.name}</b><span>${c.note}</span></button>`).join("");
+hall.onclick = e => {
+  const b = e.target.closest("button");
+  if(!b) return;
+  const c = CHOICES.find(x=>x.id===b.dataset.id);
+  if(c.id==="explore"){ openExplore(); return; }
+  hall.parentElement.querySelector("h1").style.display = "none";
+  hall.style.display = "none";
+  room.style.display = "block";
+  document.getElementById("scene").style.backgroundImage = "url("+c.img+")";
+  document.getElementById("title").textContent = c.name;
+  document.getElementById("line").textContent = c.line;
+  const extra = document.getElementById("extra");
+  extra.innerHTML = "";
+  if(c.friends){
+    extra.innerHTML = c.friends.map(f=>`<button data-friend="${f}">${f}</button>`).join("");
+    extra.onclick = ev => { if(ev.target.dataset.friend){ localStorage.setItem("mm-friend", ev.target.dataset.friend); document.getElementById("line").textContent = ev.target.dataset.friend+" will walk with you."; } };
+  }
+  if(c.books) extra.innerHTML = c.books.map(b=>`<p>${b}</p>`).join("");
+  if(c.go && c.go.startsWith("#")) extra.innerHTML += "<p>Stay in this room as long as you like.</p>";
+  if(c.go && !c.go.startsWith("#")) extra.innerHTML += `<p><a href="${c.go}">${c.label}</a></p>`;
+};
+document.getElementById("back").onclick = () => { room.style.display="none"; hall.style.display="grid"; hall.parentElement.querySelector("h1").style.display="block"; };
+function openExplore(){
+  hall.style.display="none";
+  room.style.display="block";
+  document.getElementById("scene").style.backgroundImage="url(explore.jpg)";
+  document.getElementById("title").textContent="Explore the house";
+  document.getElementById("line").textContent="Walk the rooms. The game door is last, and you can leave whenever you want.";
+  document.getElementById("extra").innerHTML = ["Foyer","Library","Kitchen","Garden","Storybook","Art room","Music","Mansion Millions door"].map(n=>`<p>${n}</p>`).join("") + '<p><a href="continuous.html">Enter Mansion Millions</a></p>';
 }
-doors.onclick = e => { if(e.target.dataset.go) show(e.target.dataset.go); };
-go.onclick = () => { if(window.mmJourney) mmJourney("continuous.html","Mansion Millions","The far door opens onto the board.","board.jpg"); else location.href="continuous.html"; };
-show("foyer");
+if(false){
+  document.getElementById("line").textContent = "";
+  hall.innerHTML = "";
+  document.body.insertAdjacentHTML("beforeend", `<div style="max-width:480px;margin:0 auto;padding:0 12px 20px">
+    <a href="jasons-place.html">Back to choices</a>
+    <p>Foyer to library to garden to music. The far door is the game.</p>
+    <p><a href="continuous.html">I found the Mansion Millions door</a></p>
+  </div>`);
+}
 </script>
-<script src="journey.js"></script>
 </body>
 </html>
