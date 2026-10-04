@@ -48,7 +48,7 @@ const LEVELS = [
   { name:"Wings", img:"board.jpg", stops:["Kitchen","Garden","Library","Ballroom","Stables"] },
   { name:"Vault night", img:"reward.jpg", stops:["Dome","Music","Portrait","Goblet","Vault"] }
 ];
-let G = JSON.parse(localStorage.getItem("mm-cont")||"null") || { cash:50000000, dice:12, level:0, pos:0, owned:{} };
+let G = JSON.parse(localStorage.getItem("mm-cont")||"null") || { cash:1000000, dice:12, level:0, pos:0, owned:{} };
 const track = document.getElementById("track");
 const token = document.getElementById("token");
 function money(n){ if(n>=1e12) return (n/1e12).toFixed(1)+" trillion"; if(n>=1e9) return (n/1e9).toFixed(1)+" billion"; if(n>=1e6) return (n/1e6).toFixed(1)+" million"; return n.toLocaleString(); }
