@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4a1a6b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Mansion Millions — City Tour</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/tour.css">
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <h1 class="brand">Mansion Millions</h1>
+    <div class="pill">🪙 <b id="coins">0</b></div>
+    <div class="pill">🎲 <b id="diceLeft">0</b></div>
+    <div class="pill">📮 <b id="stamps">0</b></div>
+    <div class="pill" id="lap">Lap 1</div>
+  </div>
+  <div id="discovery">Estate Tour</div>
+  <div id="tabs">
+    <button type="button" class="tab on" id="tabPlay" data-tab="play">Play</button>
+    <button type="button" class="tab" id="tabStamps" data-tab="stamps">Stamps</button>
+    <button type="button" class="tab" id="tabGarage" data-tab="garage">Garage</button>
+    <button type="button" class="tab" id="tabHow" data-tab="how">How</button>
+    <a class="home" href="index.html">Home</a>
+  </div>
+
+  <section class="panel on" id="panel-play">
+    <div id="boardWrap"><div id="board" aria-label="Tour board"></div></div>
+    <div id="dock">
+      <button type="button" class="btn" id="loginBtn">Daily gift</button>
+      <button type="button" class="btn btn-gold" id="rollBtn">ROLL</button>
+      <button type="button" class="btn" id="shopBtn">Shop</button>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-stamps">
+    <h2>Postcard stamp book</h2>
+    <p class="muted">Visit cities to stamp them. New cities unlock each lap!</p>
+    <div id="stampBook"></div>
+  </section>
+
+  <section class="panel" id="panel-garage">
+    <h2>Your garage &amp; homes</h2>
+    <p class="muted">Cars and houses you buy with play coins. Free — no real money.</p>
+    <div class="garage-grid" id="garageGrid"></div>
+    <p style="margin-top:12px"><button type="button" class="btn btn-gold" id="shopBtn2">Open Shop</button></p>
+  </section>
+
+  <section class="panel" id="panel-how">
+    <h2>How to play</h2>
+    <ul>
+      <li>Tap <b>ROLL</b> — watch the golden die!</li>
+      <li>Your golden top hat hops to new spots.</li>
+      <li>Each landing: arrival → short scene → summary.</li>
+      <li>Stamp cities, ride adventures, collect coins.</li>
+      <li>Finish a lap to unlock brand-new places.</li>
+      <li>Shop for cars, houses, and fun upgrades with play coins only.</li>
+      <li>Daily dice refill and a free login gift. No real-money purchases.</li>
+    </ul>
+    <p class="fine">Mansion coins are pretend play money. Kid-friendly free-to-play.</p>
+    <label class="fine"><input type="checkbox" id="soundToggle"> Sound (off by default)</label>
+    <div id="butlerReact" data-mood="welcome" style="margin-top:12px;display:flex;gap:10px;align-items:center">
+      <img src="assets/ghost-butler.svg" width="72" height="72" alt="Ghost butler">
+      <p>Your friendly butler guides every stop!</p>
+    </div>
+  </section>
+</div>
+
+<div id="diceOverlay" aria-hidden="true">
+  <div class="fx-stage">
+    <div class="fx-die" aria-live="polite">🎲</div>
+    <div class="fx-burst"></div>
+    <div class="fx-goblet">🏆</div>
+  </div>
+</div>
+<div id="arrivalToast" class="arrival-toast" aria-live="polite"></div>
+<div id="cinematic" class="cinematic" aria-hidden="true"></div>
+<div id="cutscene" class="cutscene" aria-hidden="true"></div>
+<div id="shopPrompt"></div>
+<div id="buildOffer"></div>
+<div id="shopModal" aria-modal="true" role="dialog" aria-label="Shop">
+  <div id="shopSheet" class="mm-frame">
+    <div class="mm-frame__gem"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="margin:0;color:var(--mm-gold-bright)">Coin Shop</h2>
+      <button type="button" class="btn" id="shopClose">Close</button>
+    </div>
+    <p class="fine">Spend play coins only — never real money. Balance: <b id="shopCoins">0</b> 🪙</p>
+    <div id="shopTabs"></div>
+    <div id="shopBody"></div>
+  </div>
+</div>
+<div id="fxLayer"></div>
+
+<script src="js/board-data.js"></script>
+<script src="js/game-state.js"></script>
+<script src="js/shop-catalog.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/tour-game.js"></script>
+<script src="js/tour-shop.js"></script>
+<script>
+  // Garage tab
+  document.getElementById('tabGarage').onclick = function(){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.dataset.tab==='garage'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on', p.id==='panel-garage'));
+    if(window.MMTourShop) MMTourShop.renderGarage();
+  };
+  document.getElementById('shopBtn2').onclick = function(){ if(window.MMTourShop) MMTourShop.openShop('cars'); };
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
+</script>
+</body>
+</html>
