@@ -1,0 +1,108 @@
+/* Mansion Millions — modular theme tokens (swappable for style passes) */
+:root {
+  /* Velvet / gold / amethyst palette from style reference */
+  --mm-velvet: #4a1a6b;
+  --mm-velvet-deep: #2d0f45;
+  --mm-velvet-soft: #6b2d8a;
+  --mm-gold: #f0c14b;
+  --mm-gold-bright: #ffe7a0;
+  --mm-gold-deep: #c4921a;
+  --mm-amethyst: #9b59b6;
+  --mm-amethyst-bright: #c39bd3;
+  --mm-sky: #5eb3e8;
+  --mm-sky-deep: #2a7ab8;
+  --mm-garden: #2d6a4f;
+  --mm-garden-light: #52b788;
+  --mm-bloom: #e85d9a;
+  --mm-cream: #fff8ea;
+  --mm-ink: #1a0f24;
+  --mm-ink-soft: #3d2a4a;
+  --mm-danger: #c0392b;
+  --mm-bonus: #27ae60;
+  --mm-ride: #2980b9;
+  --mm-chance: #8e44ad;
+  --mm-jail: #7f8c8d;
+  --mm-start: #d4a017;
+
+  --mm-frame-border: 3px solid var(--mm-gold);
+  --mm-frame-radius: 20px;
+  --mm-frame-shadow: 0 12px 40px rgba(45, 15, 69, 0.45), inset 0 0 0 1px rgba(240, 193, 75, 0.35);
+  --mm-filigree: linear-gradient(135deg, var(--mm-gold-bright), var(--mm-gold), var(--mm-gold-deep));
+
+  --mm-font-display: Georgia, "Palatino Linotype", Palatino, serif;
+  --mm-font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --mm-space-city: var(--mm-velvet);
+  --mm-space-ride: var(--mm-ride);
+  --mm-space-chance: var(--mm-chance);
+  --mm-space-bonus: var(--mm-bonus);
+  --mm-space-jam: var(--mm-jail);
+  --mm-space-go: var(--mm-start);
+
+  /* Cut-scene / video-moment slots (swap duration & easing without touching logic) */
+  --mm-cutscene-ms: 1400ms;
+  --mm-dice-ms: 900ms;
+  --mm-step-ms: 220ms;
+  --mm-coin-ms: 800ms;
+  --mm-confetti-ms: 1600ms;
+  --mm-motion: ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mm-cutscene-ms: 200ms;
+    --mm-dice-ms: 200ms;
+    --mm-step-ms: 80ms;
+    --mm-coin-ms: 200ms;
+    --mm-confetti-ms: 300ms;
+  }
+}
+
+.mm-frame {
+  background: linear-gradient(160deg, var(--mm-velvet-soft), var(--mm-velvet-deep));
+  border: var(--mm-frame-border);
+  border-radius: var(--mm-frame-radius);
+  box-shadow: var(--mm-frame-shadow);
+  position: relative;
+  overflow: hidden;
+}
+.mm-frame::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 6px;
+  border-radius: calc(var(--mm-frame-radius) - 6px);
+  border: 1px solid rgba(240, 193, 75, 0.45);
+}
+.mm-frame__gem {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 22px;
+  background: radial-gradient(circle at 40% 35%, #e8d5f5, var(--mm-amethyst) 55%, #5b2c6f);
+  clip-path: polygon(50% 0%, 100% 35%, 80% 100%, 20% 100%, 0% 35%);
+  z-index: 2;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
+}
+.mm-corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--mm-gold), var(--mm-gold)) top left / 14px 2px no-repeat,
+    linear-gradient(var(--mm-gold), var(--mm-gold)) top left / 2px 14px no-repeat;
+  opacity: 0.9;
+}
+.mm-corner.tr { top: 8px; right: 8px; transform: scaleX(-1); }
+.mm-corner.bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+.mm-corner.br { bottom: 8px; right: 8px; transform: scale(-1); }
+.mm-corner.tl { top: 8px; left: 8px; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space:nowrap; border: 0;
+}
