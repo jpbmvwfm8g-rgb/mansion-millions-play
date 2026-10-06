@@ -18,9 +18,9 @@
       cities[c.id] = { build: 0, stamped: false, visits: 0 };
     });
     return {
-      version: 1,
-      coins: 5000,
-      dice: B().DAILY_DICE,
+      version: 2,
+      coins: 0,
+      dice: 1,
       pos: 0,
       skipTurns: 0,
       flags: {},
@@ -31,6 +31,10 @@
       loginClaimed: false,
       sound: false,
       rollsToday: 0,
+      lifetimeDailyRolls: 0,
+      streak: 0,
+      lastRollDay: null,
+      token: localStorage.getItem("mm-token") || "Jace",
       butlerMood: "welcome",
       ownedCars: [],
       ownedHouses: [],
@@ -61,11 +65,23 @@
     const t = todayKey();
     if (s.day !== t) {
       s.day = t;
-      s.dice = B().DAILY_DICE;
+      s.dice = 1;
       s.loginClaimed = false;
       s.rollsToday = 0;
       s.skipTurns = 0;
       s.flags = {};
+    }
+  }
+
+  function recordDailyRoll(s) {
+    applyDaily(s);
+    if ((s.rollsToday || 0) === 0) {
+      const d = new Date(); d.setDate(d.getDate() - 1);
+      const prev = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+      s.streak = s.lastRollDay === prev ? (s.streak || 0) + 1 : 1;
+      s.lastRollDay = todayKey();
+      s.lifetimeDailyRolls = (s.lifetimeDailyRolls || 0) + 1;
+      localStorage.setItem("mm-daily-rolls", String(s.lifetimeDailyRolls));
     }
   }
 
@@ -109,6 +125,7 @@
     save,
     applyDaily,
     claimLogin,
+    recordDailyRoll,
     cityPayout,
     buildCost
   };
