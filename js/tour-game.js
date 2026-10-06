@@ -77,6 +77,9 @@
     $("diceLeft").textContent = G.dice;
     $("stamps").textContent = G.stamps + "/" + Board.CITIES.length;
     $("lap").textContent = "Lap " + ((G.laps || 0) + 1);
+    const chosen = localStorage.getItem("mm-active-token") || localStorage.getItem("mm-token") || G.token || "Jace";
+    G.token = chosen;
+    const hint = document.getElementById("centerHint"); if (hint) hint.textContent = chosen + " • Streak " + (G.streak || 0) + " • " + (G.lifetimeDailyRolls || 0) + " daily rolls";
     const disc = discoveryForLap(G.laps || 0);
     $("discovery").textContent = disc.title + " — " + disc.blurb;
     $("loginBtn").disabled = !!G.loginClaimed;
@@ -474,12 +477,13 @@
       return;
     }
     if (G.dice <= 0) {
-      Fx.floatText($("dock"), "Come back tomorrow for more dice!", "fx-float--warn");
+      Fx.floatText($("dock"), "Your daily roll is used — come back tomorrow to keep your streak!", "fx-float--warn");
       return;
     }
     busy = true;
     $("rollBtn").disabled = true;
     G.dice -= 1;
+    State.recordDailyRoll(G);
     G.rollsToday = (G.rollsToday || 0) + 1;
     hud();
 
