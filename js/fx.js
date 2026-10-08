@@ -61,6 +61,38 @@
   async function rollDice(overlay, face) {
     const n = face || 1 + Math.floor(Math.random() * 6);
     if (!overlay) return n;
+    // A cinematic, decorative roll sequence; never alters the chosen face.
+    const previousMagic = overlay.querySelector(".mm-magic-roll");
+    if (previousMagic) previousMagic.remove();
+    const magic = document.createElement("div");
+    magic.className = "mm-magic-roll";
+    magic.setAttribute("aria-hidden", "true");
+    const variation = Math.floor(Math.random() * 4);
+    magic.innerHTML = '<div class="mm-magic-sky"><div class="mm-magic-stars"></div><div class="mm-magic-hat">🎩</div><div class="mm-magic-orbit">✦ ✧ ✦</div><div class="mm-magic-caption">The mansion is casting your roll…</div></div>';
+    const styleId = "mm-magic-roll-style";
+    if (!document.getElementById(styleId)) {
+      const st = document.createElement("style"); st.id = styleId;
+      st.textContent = `
+      .mm-magic-roll{position:absolute;inset:0;z-index:1;display:grid;place-items:center;pointer-events:none;overflow:hidden;background:radial-gradient(ellipse at 50% 60%,#68289b 0%,#201248 45%,#090c25 100%);isolation:isolate}
+      .mm-magic-sky{position:relative;width:100%;height:100%;display:grid;place-items:center;perspective:650px}
+      .mm-magic-stars{position:absolute;inset:-30%;background-image:radial-gradient(circle,#fff 1px,transparent 3px),radial-gradient(circle,#ffd66b 1.5px,transparent 3px),radial-gradient(circle,#71eaff 1px,transparent 3px);background-size:61px 83px,113px 127px,157px 97px;animation:mmStarFlight 2.8s linear infinite;opacity:.8}
+      .mm-magic-hat{position:relative;font-size:clamp(110px,32vw,220px);filter:drop-shadow(0 0 35px #ffcf54);animation:mmHatDance 1.1s ease-in-out infinite alternate}
+      .mm-magic-orbit{position:absolute;top:18%;font-size:clamp(34px,9vw,70px);color:#ffe2a0;letter-spacing:1em;text-shadow:0 0 28px #ffc54c;animation:mmOrbit 1.4s ease-in-out infinite alternate}
+      .mm-magic-caption{position:absolute;bottom:13%;left:5%;right:5%;text-align:center;color:#fff8df;font:700 clamp(17px,4vw,26px)/1.3 Georgia,serif;text-shadow:0 2px 14px #09091e}
+      .mm-magic-roll[data-variant="1"]{background:radial-gradient(ellipse,#086d7b,#18104d 60%,#070c22)}
+      .mm-magic-roll[data-variant="2"]{background:radial-gradient(ellipse,#7d2c63,#27104c 60%,#070c22)}
+      .mm-magic-roll[data-variant="3"]{background:radial-gradient(ellipse,#7e5614,#31144b 60%,#070c22)}
+      .mm-magic-roll.mm-magic-reveal .mm-magic-hat{animation:mmHatReveal .6s ease-out both}
+      .mm-magic-roll.mm-magic-reveal .mm-magic-caption{font-size:clamp(30px,9vw,66px);color:#ffdf79}
+      @keyframes mmHatDance{to{transform:translateY(-22px) rotate(-9deg) scale(1.1)}}
+      @keyframes mmHatReveal{to{transform:translateY(-100px) rotate(18deg) scale(1.8);opacity:.3}}
+      @keyframes mmOrbit{to{transform:rotate(20deg) scale(1.3)}}
+      @keyframes mmStarFlight{to{transform:translateY(120px) rotate(8deg)}}
+      @media(prefers-reduced-motion:reduce){.mm-magic-roll *{animation:none!important}}
+      `; document.head.appendChild(st);
+    }
+    magic.dataset.variant = String(variation);
+    overlay.appendChild(magic);
     overlay.classList.add("on");
     overlay.setAttribute("aria-hidden", "false");
     const die = overlay.querySelector(".fx-die");
@@ -82,7 +114,11 @@
       spawnCoins(burst, 10);
     }
     sparkles(die);
-    await wait(500);
+    magic.classList.add("mm-magic-reveal");
+    const caption = magic.querySelector(".mm-magic-caption");
+    if (caption) caption.textContent = "✦ " + n + " ✦";
+    await wait(650);
+    magic.remove();
     overlay.classList.remove("on");
     overlay.setAttribute("aria-hidden", "true");
     if (die) die.classList.remove("landed");
