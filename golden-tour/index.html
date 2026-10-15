@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mansion Millions: Golden Tour — ARQS Edition</title>
 <meta name="arqs-apin" content="ARQS-APIN-2026-001683">
-<meta name="arqs-version" content="1.1.0">
-<meta name="description" content="Golden Tour expansion module for Mansion Millions — roll, tour, buy rooms, and grow your mansion into a Millionaire’s Palace.">
+<meta name="arqs-version" content="1.2.0">
+<meta name="description" content="Golden Tour expansion module for Mansion Millions — roll, tour, buy rooms, and grow your mansion into a Millionaire’s Palace. Now with roles.">
 <style>
 :root{--gold:#fbbf24;--gold-d:#92400e;--vio:#a78bfa;--bg:#1e1b4b;--panel:rgba(0,0,0,.35)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -19,6 +19,9 @@ h1{font-size:26px;font-weight:900;letter-spacing:-.5px;background:linear-gradien
 .chip{background:var(--panel);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.4);border-radius:14px;padding:7px 12px;font-weight:900;font-size:15px;color:var(--gold);transition:transform .15s}
 .chip.gem{border-color:rgba(232,121,249,.4);color:#e879f9}
 .chip.pop{transform:scale(1.22)}
+.roles{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.role{cursor:pointer;padding:8px 14px;border-radius:12px;background:var(--panel);border:1px solid rgba(167,139,250,.4);font-size:12px;font-weight:800;transition:all .2s}
+.role.selected{border-color:var(--gold);background:rgba(251,191,36,.2);color:var(--gold)}
 .mansion{background:var(--panel);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.3);border-radius:24px;padding:16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 20px 50px rgba(0,0,0,.45)}
 .mansion .label{font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--vio)}
 .mansion .name{font-size:21px;font-weight:900;background:linear-gradient(90deg,#fde68a,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -66,9 +69,16 @@ button.roll .dice.spin{animation:spin .3s linear infinite}
 <body>
 <div class="wrap">
   <header>
-    <div><h1>MANSION MILLIONS</h1><div class="sub">GOLDEN TOUR &middot; ARQS EDITION</div></div>
+    <div><h1>MANSION MILLIONS</h1><div class="sub">GOLDEN TOUR · ARQS EDITION · ROLES</div></div>
     <div class="wallet"><div class="chip" id="coins">🪙 350</div><div class="chip gem" id="gems">💎 3</div></div>
   </header>
+  <div class="roles" id="roles">
+    <div class="role selected" data-role="architect">🏛️ Architect</div>
+    <div class="role" data-role="investor">💼 Investor</div>
+    <div class="role" data-role="heir">👑 Heir</div>
+    <div class="role" data-role="celebrity">⭐ Celebrity</div>
+    <div class="role" data-role="tycoon">🏢 Tycoon</div>
+  </div>
   <div class="mansion">
     <div>
       <div class="label">YOUR MANSION</div>
@@ -78,13 +88,21 @@ button.roll .dice.spin{animation:spin .3s linear infinite}
     <div class="mansion-art" id="mArt"></div>
   </div>
   <div class="board" id="board"></div>
-  <div class="rollwrap"><button class="roll" id="rollBtn"><span class="dice" id="diceIco">🎲</span>ROLL &amp; TOUR</button></div>
+  <div class="rollwrap"><button class="roll" id="rollBtn"><span class="dice" id="diceIco">🎲</span>ROLL & TOUR</button></div>
   <div class="stats"><span id="rolls">ROLLS: 0</span><span id="die">DIE: –</span><span id="rent">RENT/4s: +0🪙</span></div>
   <div class="support"><p>Coins and gems are fictional game points with no cash value. No purchases or cash prizes in this tour.</p><p id="saveStatus" class="save-status" role="status">Progress saves in this browser only. No offline income.</p><a href="/">Return to Mansion Millions</a></div>
-  <p class="foot">ARQS PRODUCT MODULE &middot; MANSION MILLIONS PLATFORM &middot; EXPANSION "GOLDEN TOUR"<br>ARQS-APIN-2026-001683 &middot; v1.1.0</p>
+  <p class="foot">ARQS PRODUCT MODULE · MANSION MILLIONS PLATFORM · EXPANSION "GOLDEN TOUR"<br>ARQS-APIN-2026-001683 · v1.2.0</p>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
+var ROLES={
+  architect:{token:"📐",bonus:100,name:"Architect"},
+  investor:{token:"📈",bonus:150,name:"Investor"},
+  heir:{token:"👑",bonus:200,name:"Heir"},
+  celebrity:{token:"⭐",bonus:80,name:"Celebrity"},
+  tycoon:{token:"🏢",bonus:120,name:"Tycoon"}
+};
+var currentRole="architect";
 var TILES=[
 {id:0,type:"start",name:"Golden Gate",reward:50},
 {id:1,type:"property",name:"Foyer",cost:120,rent:22,icon:"🚪"},
@@ -108,8 +126,8 @@ var TILES=[
 {id:19,type:"jackpot",name:"MEGA VAULT",amount:1200}];
 var LEVELS=[{l:0,name:"Fixer-Upper",need:0},{l:1,name:"Cozy Estate",need:2},{l:2,name:"Grand Villa",need:5},{l:3,name:"Golden Manor",need:7},{l:4,name:"MILLIONAIRE’S PALACE",need:9}];
 var ROOM_COUNT=TILES.filter(function(t){return t.type==="property"}).length;
-var SAVE_KEY="arqs.mansion-millions.golden-tour.v1", storageAvailable=true;
-var S={coins:350,gems:3,pos:0,owned:[],rolls:0};
+var SAVE_KEY="arqs.mansion-millions.golden-tour.v2", storageAvailable=true;
+var S={coins:350,gems:3,pos:0,owned:[],rolls:0,role:"architect"};
 function validState(v){
   return v && ["coins","gems","pos","rolls"].every(function(k){return Number.isSafeInteger(v[k])&&v[k]>=0}) &&
     v.pos<TILES.length && Array.isArray(v.owned) && v.owned.length<=ROOM_COUNT &&
@@ -120,20 +138,21 @@ function loadSave(){
   try{raw=localStorage.getItem(SAVE_KEY);localStorage.setItem(SAVE_KEY+".probe","1");localStorage.removeItem(SAVE_KEY+".probe")}
   catch(e){storageAvailable=false;$("saveStatus").textContent="Session only — browser storage is unavailable.";return}
   if(!raw)return;
-  try{var saved=JSON.parse(raw);if(saved.version!==1||!validState(saved.state))throw new Error("Invalid save");
-    var v=saved.state;S={coins:v.coins,gems:v.gems,pos:v.pos,owned:v.owned.slice(),rolls:v.rolls};
+  try{var saved=JSON.parse(raw);if(saved.version!==2||!validState(saved.state))throw new Error("Invalid save");
+    var v=saved.state;S={coins:v.coins,gems:v.gems,pos:v.pos,owned:v.owned.slice(),rolls:v.rolls,role:v.role||"architect"};
+    currentRole=S.role;
   }catch(e){$("saveStatus").textContent="Saved progress could not be restored. A new tour has started."}
 }
 function saveGame(){
   if(!storageAvailable)return;
-  try{localStorage.setItem(SAVE_KEY,JSON.stringify({version:1,state:S}))}
+  S.role=currentRole;
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({version:2,state:S}))}
   catch(e){storageAvailable=false;$("saveStatus").textContent="Session only — progress cannot be saved in this browser."}
 }
 loadSave();
 function $(id){return document.getElementById(id)}
 function rnd(n){return Math.floor(Math.random()*n)}
-function mansionSVG(level){var floors=1+level,gold=level>=3;var roof=gold?"url(#g)":(level>=1?"#8b5cf6":"#57534e");var wall=gold?"#fbbf24":(level>=2?"#a78bfa":"#78716c");var lit=level>=2;var win="";for(var f=0;f<floors;f++){for(var w=0;w<3;w++){win+='<rect x="'+(54+w*44)+'" y="'+(150-floors*26+6+f*26)+'" width="16" height="14" rx="2" fill="'+(lit?"#fde68a":"#312e81")+'"/>';}}
-var y0=150-floors*26;var extras="";if(level>=3){extras+='<rect x="26" y="'+(y0+4)+'" width="14" height="10" fill="#fbbf24"/><rect x="180" y="'+(y0+4)+'" width="14" height="10" fill="#fbbf24"/>'}if(level>=4){extras+='<polygon points="110,20 120,32 100,32" fill="#fbbf24"/>'}
+function mansionSVG(level){var floors=1+level,gold=level>=3;var roof=gold?"url(#g)":(level>=1?"#8b5cf6":"#57534e");var wall=gold?"#fbbf24":(level>=2?"#a78bfa":"#78716c");var lit=level>=2;var win="";for(var f=0;f<floors;f++){for(var w=0;w<3;w++){win+='<rect x="'+(54+w*44)+'" y="'+(150-floors*26+6+f*26)+'" width="16" height="14" rx="2" fill="'+(lit?"#fde68a":"#312e81")+'"/>';}}var y0=150-floors*26;var extras="";if(level>=3){extras+='<rect x="26" y="'+(y0+4)+'" width="14" height="10" fill="#fbbf24"/><rect x="180" y="'+(y0+4)+'" width="14" height="10" fill="#fbbf24"/>'}if(level>=4){extras+='<polygon points="110,20 120,32 100,32" fill="#fbbf24"/>'}
 return '<svg role="img" aria-label="Your evolving mansion" data-apin="ARQS-APIN-2026-001686" viewBox="0 -18 220 188" width="100%" height="100%"><metadata>ARQS-APIN-2026-001686; parent ARQS-APIN-2026-001683</metadata><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="#d97706"/></linearGradient><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+wall+'"/><stop offset="100%" stop-color="'+(gold?"#b45309":"#3f3f46")+'"/></linearGradient></defs><ellipse cx="110" cy="160" rx="100" ry="8" fill="#1e1b4b"/><rect x="40" y="'+y0+'" width="140" height="'+(floors*26)+'" rx="4" fill="url(#w)"/><polygon points="30,'+y0+' 110,'+(y0-34)+' 190,'+y0+'" fill="'+roof+'"/>'+win+'<rect x="100" y="132" width="20" height="18" rx="3" fill="#1f2937" stroke="'+(gold?"#fbbf24":"#a78bfa")+'" stroke-width="2"/>'+extras+'<text x="110" y="168" text-anchor="middle" font-size="7" fill="white" opacity="0.08">ARQS.ca/imaging</text></svg>';}
 function levelOf(){var a=0;for(var i=0;i<LEVELS.length;i++){if(S.owned.length>=LEVELS[i].need)a=LEVELS[i].l}return a}
 function render(){
@@ -154,8 +173,10 @@ else if(t.type==="jackpot"){inner='<span class="ico">🎉</span><span class="nm"
 else if(t.type==="tax"){inner='<span class="ico">💸</span><span class="nm">'+t.name+'</span><span class="pr">'+t.amount+'</span>';}
 else{inner='<span class="ico">🏁</span><span class="nm">'+t.name+'</span><span class="pr">+'+t.reward+'</span>';}
 d.innerHTML=inner;
-if(S.pos===t.id){var tk=document.createElement("div");tk.className="token";tk.textContent="🎩";d.appendChild(tk);}
-b.appendChild(d);});}
+if(S.pos===t.id){var tk=document.createElement("div");tk.className="token";tk.textContent=ROLES[currentRole].token;d.appendChild(tk);}
+b.appendChild(d);});
+document.querySelectorAll(".role").forEach(function(r){r.classList.toggle("selected",r.dataset.role===currentRole);});
+}
 function toast(msg,bad){var t=$("toast");t.textContent=msg;t.className="toast show"+(bad?" bad":"");clearTimeout(t._h);t._h=setTimeout(function(){t.className="toast"+(bad?" bad":"")},2200);}
 function burst(n){for(var i=0;i<n;i++){var c=document.createElement("div");c.className="burst";c.textContent="🪙";c.style.setProperty("--dx",(rnd(160)-80)+"px");c.style.left=(45+rnd(10))+"%";document.body.appendChild(c);setTimeout(function(e){return function(){e.remove()}}(c),950);}}
 function shake(){document.body.classList.remove("shake");void document.body.offsetWidth;document.body.classList.add("shake");}
@@ -185,14 +206,24 @@ if(ticks>12){clearInterval(iv);ico.classList.remove("spin");
 var face=rnd(6);ico.textContent=["⚀","⚁","⚂","⚃","⚄","⚅"][face];
 $("die").textContent="DIE: "+(face+1);S.rolls++;
 var steps=face+1,step=0,passedGate=false;
-btn.innerHTML='<span class="dice">🎩</span> MOVING...';
+btn.innerHTML='<span class="dice">'+ROLES[currentRole].token+'</span> MOVING...';
 var walk=setInterval(function(){
 S.pos=(S.pos+1)%TILES.length;if(S.pos===0){addCoins(TILES[0].reward);passedGate=true}render();
 step++;
 if(step>=steps){clearInterval(walk);
-setTimeout(function(){land(S.pos,passedGate);btn.disabled=false;btn.innerHTML='<span class="dice" id="diceIco">🎲</span>ROLL &amp; TOUR';busy=false;},200);}
+setTimeout(function(){land(S.pos,passedGate);btn.disabled=false;btn.innerHTML='<span class="dice" id="diceIco">🎲</span>ROLL & TOUR';busy=false;},200);}
 },260);}
 },70);});
+document.querySelectorAll(".role").forEach(function(el){
+  el.addEventListener("click",function(){
+    currentRole=this.dataset.role;
+    if(!S.owned.length && S.rolls===0){
+      S.coins=350+ROLES[currentRole].bonus;
+      toast("Role bonus: +"+ROLES[currentRole].bonus+" coins as "+ROLES[currentRole].name);
+    }
+    render();saveGame();
+  });
+});
 setInterval(function(){if(S.owned.length){var r=0;for(var i=0;i<S.owned.length;i++)r+=TILES[S.owned[i]].rent;addCoins(r);render();if(!busy)saveGame();}},4000);
 for(var i=0;i<24;i++){var s=document.createElement("div");s.className="star";var sz=2+rnd(3);s.style.cssText="left:"+rnd(100)+"vw;top:"+rnd(100)+"vh;width:"+sz+"px;height:"+sz+"px;background:"+(i%3?"#a78bfa":"#fbbf24")+";animation-delay:"+rnd(3)+"s";document.body.appendChild(s);}
 render();
