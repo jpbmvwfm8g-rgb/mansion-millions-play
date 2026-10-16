@@ -1,0 +1,98 @@
+/* Mansion Millions play FX (2026-10-15): real game-piece token, gold coin dice, cash-out, prize clips. Crisp: no blur, no haze. */
+#stage{overflow:visible}
+#token{position:absolute;width:15%;max-width:64px;aspect-ratio:1;margin:0;transform:translate(-50%,-88%);z-index:3;pointer-events:none;
+  transition:left .24s cubic-bezier(.3,.7,.4,1),top .24s cubic-bezier(.3,.7,.4,1);background:none;border:0;border-radius:0;box-shadow:none}
+#token img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 0 2px #fff6c8) drop-shadow(0 5px 3px rgba(40,20,0,.55))}
+#token::after{content:"";position:absolute;left:18%;right:18%;bottom:-4%;height:12%;border-radius:50%;background:rgba(30,15,0,.38);z-index:-1;transition:transform .24s}
+#token.hop img{animation:mmHop .26s cubic-bezier(.3,.6,.4,1)}
+#token.hop::after{animation:mmShadow .26s ease-out}
+#token.land img{animation:mmLand .42s cubic-bezier(.34,1.56,.64,1)}
+@keyframes mmHop{0%{transform:translateY(0) scale(1.08,.9)}35%{transform:translateY(-42%) scale(.94,1.08)}70%{transform:translateY(-10%) scale(1)}100%{transform:translateY(0) scale(1.1,.88)}}
+@keyframes mmShadow{40%{transform:scale(.55);opacity:.5}}
+@keyframes mmLand{0%{transform:scale(1.2,.8)}50%{transform:scale(.9,1.15) translateY(-14%)}100%{transform:none}}
+/* gold coin dice */
+#mmDice{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);display:flex;gap:18px;z-index:4;pointer-events:none;perspective:700px;opacity:0;transition:opacity .15s}
+#mmDice.on{opacity:1}
+.mmd{width:58px;height:58px;position:relative;transform-style:preserve-3d;transform:rotateX(-20deg) rotateY(25deg)}
+.mmd.tumble{animation:mmToss 1.1s cubic-bezier(.2,.75,.3,1) both}
+@keyframes mmToss{0%{translate:0 -120px;scale:.6}55%{translate:0 10px;scale:1.12}75%{translate:0 -14px}100%{translate:0 0;scale:1}}
+.mmd .f{position:absolute;inset:0;border-radius:12px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9px;gap:2px;
+  background:radial-gradient(circle at 30% 25%,#fffbe0 0,#ffe17a 24%,#f5b621 58%,#c27c0c 100%);
+  box-shadow:inset 0 0 0 2px #fff1a8,inset 0 -4px 6px rgba(120,60,0,.45),inset 0 3px 4px rgba(255,255,255,.75)}
+.mmd .f::before{content:"$";position:absolute;right:4px;bottom:1px;font:900 10px/1 Georgia,serif;color:#9a5c06;opacity:.55}
+.mmd .f i{border-radius:50%;align-self:center;justify-self:center;width:88%;aspect-ratio:1;
+  background:radial-gradient(circle at 38% 32%,#fff6c0 0 14%,#e9a417 30%,#8a4f03 78%);box-shadow:0 0 0 1.5px #7a4300,0 1px 0 #fff3b0}
+.mmd .f1{transform:translateZ(29px)}.mmd .f6{transform:rotateY(180deg) translateZ(29px)}
+.mmd .f2{transform:rotateY(90deg) translateZ(29px)}.mmd .f5{transform:rotateY(-90deg) translateZ(29px)}
+.mmd .f3{transform:rotateX(90deg) translateZ(29px)}.mmd .f4{transform:rotateX(-90deg) translateZ(29px)}
+.mmspark{position:absolute;width:9px;height:9px;left:50%;top:50%;pointer-events:none;z-index:6;
+  background:radial-gradient(circle,#fff 0 25%,#ffe36b 40%,transparent 70%);animation:mmSpark .8s ease-out forwards}
+.mmspark.star{width:14px;height:14px;background:#fff6a8;clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)}
+@keyframes mmSpark{0%{transform:translate(-50%,-50%) scale(.4);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1) rotate(160deg);opacity:0}}
+/* roll button: gold coin */
+#roll{background:linear-gradient(180deg,#fff6c4 0%,#ffd84a 38%,#f2a90f 70%,#c97a06 100%)!important;color:#5a2d00!important;border:3px solid #fff3b0!important;
+  box-shadow:0 6px 0 #9a5800,0 10px 18px rgba(80,40,0,.45),inset 0 2px 0 #fff!important;letter-spacing:.06em;text-shadow:0 1px 0 #fff6c8;display:flex;align-items:center;justify-content:center;gap:10px}
+#roll .mini{display:inline-block;width:22px;height:22px;border-radius:6px;background:radial-gradient(circle at 30% 25%,#fffbe0,#f5b621 60%,#a8650a);box-shadow:inset 0 0 0 1.5px #fff1a8,0 2px 0 #8a4f03;position:relative}
+#roll .mini::after{content:"$";position:absolute;inset:0;display:grid;place-items:center;font:900 13px Georgia,serif;color:#6a3800}
+#roll:not(:disabled):active{transform:translateY(3px);box-shadow:0 3px 0 #9a5800!important}
+/* cash-out */
+.mmpop{position:absolute;width:20%;aspect-ratio:1;transform:translate(-50%,-60%);z-index:2;pointer-events:none}
+.mmpop::before{content:"";position:absolute;inset:0;border-radius:50%;border:5px solid #ffe066;box-shadow:0 0 0 3px #fff;animation:mmRing .7s ease-out forwards}
+.mmpop::after{content:"";position:absolute;inset:-30%;background:conic-gradient(from 0deg,#ffe36b 0 8deg,transparent 8deg 30deg,#fff 30deg 36deg,transparent 36deg 60deg) ;border-radius:50%;
+  -webkit-mask:radial-gradient(circle,transparent 30%,#000 32%,#000 60%,transparent 62%);mask:radial-gradient(circle,transparent 30%,#000 32%,#000 60%,transparent 62%);animation:mmRays .8s ease-out forwards}
+@keyframes mmRing{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.6);opacity:0}}
+@keyframes mmRays{0%{transform:scale(.3) rotate(0);opacity:1}100%{transform:scale(1.3) rotate(40deg);opacity:0}}
+.mmcoin{position:fixed;top:-40px;width:30px;height:30px;border-radius:50%;z-index:30;pointer-events:none;
+  background:radial-gradient(circle at 35% 30%,#fffbe0 0 12%,#ffd84a 32%,#e99a0b 70%,#a35f04);box-shadow:inset 0 0 0 3px #ffe98a,inset 0 0 0 5px #c47d07,0 2px 3px rgba(60,30,0,.4);
+  animation:mmFall var(--t,1.6s) cubic-bezier(.35,.1,.6,1) forwards}
+.mmcoin::after{content:"$";position:absolute;inset:0;display:grid;place-items:center;font:900 15px Georgia,serif;color:#8a4f03}
+.mmcoin.bill{border-radius:3px;width:42px;height:20px;background:linear-gradient(135deg,#7fe08a,#2f9e47);box-shadow:inset 0 0 0 2px #c8f5c9}
+.mmcoin.bill::after{content:"MD";font-size:10px;color:#0e5a20}
+@keyframes mmFall{0%{transform:translate(0,0) rotateY(0) rotate(0)}100%{transform:translate(var(--dx,0),110vh) rotateY(900deg) rotate(var(--r,180deg))}}
+#mmCash{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%) scale(.6);z-index:31;pointer-events:none;text-align:center;opacity:0;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .2s}
+#mmCash.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#mmCash b{display:block;font:900 44px/1 Georgia,serif;color:#fff;-webkit-text-stroke:2px #a85d00;text-shadow:0 4px 0 #a85d00,0 6px 10px rgba(80,40,0,.5);letter-spacing:.01em}
+#mmCash small{display:inline-block;margin-top:8px;padding:5px 12px;border-radius:999px;background:linear-gradient(#fff6c4,#ffd84a);color:#5a2d00;font:800 13px system-ui;border:2px solid #fff;box-shadow:0 3px 0 #b06a00}
+.pill.bump{animation:mmBump .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes mmBump{40%{transform:scale(1.18)}}
+/* prize clip */
+#mmClip{position:fixed;inset:0;z-index:40;background:#0d0906;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
+#mmClip video{width:100%;max-width:480px;max-height:70vh;border-radius:20px;border:3px solid #ffd84a;box-shadow:0 0 0 3px #fff3b0;background:#000;object-fit:cover}
+#mmClip .k{font:800 12px system-ui;letter-spacing:.14em;text-transform:uppercase;color:#ffd84a;margin:0}
+#mmClip h3{margin:0;font:900 30px/1.05 Georgia,serif;color:#fff;text-align:center}
+#mmClip button{border:0;border-radius:999px;padding:12px 26px;font:900 16px system-ui;background:linear-gradient(#fff6c4,#ffd84a 45%,#e99a0b);color:#5a2d00;box-shadow:0 5px 0 #9a5800}
+/* token picker */
+#tokenBtn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--cream);font:inherit}
+#tokenBtn img{width:22px;height:22px;object-fit:contain}
+#mmPick{position:fixed;inset:0;z-index:35;background:#140e0c;display:none;flex-direction:column}
+#mmPick.on{display:flex}
+#mmPick header{padding:16px 16px 6px;display:flex;align-items:center;gap:10px}
+#mmPick h2{flex:1;margin:0;font:900 24px/1.1 Georgia,serif;color:#ffe08a}
+#mmPick h2 small{display:block;font:600 12px/1.4 system-ui;color:#e9dcc6;margin-top:4px}
+#mmPick .x{width:40px;height:40px;border-radius:50%;border:2px solid #ffd84a;background:#2a1c16;color:#ffe08a;font:900 18px system-ui}
+#mmPick .grid{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px 14px 28px;max-width:520px;margin:0 auto;width:100%}
+#mmPick .tk{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:16px;border:2px solid rgba(255,216,74,.35);background:linear-gradient(180deg,#3a2a1c,#22170f);color:#fff8ea;font:700 11px/1.2 system-ui;text-align:center;cursor:pointer;min-height:132px}
+#mmPick .tk img{width:100%;height:78px;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.6))}
+#mmPick .tk[aria-pressed="true"]{border-color:#ffe066;box-shadow:0 0 0 3px rgba(255,224,102,.55);background:linear-gradient(180deg,#6a4a12,#3a2a10)}
+@media (prefers-reduced-motion:reduce){#token,#token img,.mmd,.mmcoin,.mmpop::before,.mmpop::after{animation:none!important;transition:none!important}}
+/* v2: bigger, brighter piece; live gold HUD + gold ROLL over the painted placeholders */
+#token{width:27%;max-width:124px}
+#token::before{content:"";position:absolute;left:8%;right:8%;bottom:-6%;height:26%;border-radius:50%;background:radial-gradient(ellipse,#fff 0 30%,#ffe36b 55%,rgba(255,216,74,0) 72%);z-index:-1}
+#token img{filter:drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 6px #fff3a0) drop-shadow(0 6px 4px rgba(40,20,0,.6))}
+header .pills .pill:not(#tokenBtn):not(#who){display:none}
+.mmhud{position:absolute;top:1.6%;height:6.6%;display:flex;align-items:center;gap:6px;padding:0 10px;border-radius:14px;z-index:5;
+  background:linear-gradient(#fffdf4,#fff1cf);border:3px solid #f2c040;box-shadow:0 3px 0 #b07a12,inset 0 1px 0 #fff;color:#3a2a10;font:900 clamp(15px,4.6vw,21px)/1 system-ui;pointer-events:none}
+.mmhud.cash{left:3%;width:45%}.mmhud.dice{right:3%;width:29%;justify-content:center}
+.mmhud .ic{width:1.5em;height:1.1em;border-radius:3px;background:linear-gradient(135deg,#7fe08a,#2f9e47);box-shadow:inset 0 0 0 2px #c8f5c9;flex:none}
+.mmhud.dice .ic{width:1.15em;height:1.15em;border-radius:5px;background:radial-gradient(circle at 30% 25%,#fffbe0,#f5b621 60%,#a8650a);box-shadow:inset 0 0 0 2px #fff1a8}
+.mmhud small{font-size:.55em;font-weight:800;color:#8a5a00}
+#stage #roll{position:absolute!important;left:27%;width:46%!important;top:79%;height:19%;margin:0!important;bottom:auto!important;padding:0!important;border-radius:26px!important;z-index:5;
+  flex-direction:column;gap:2px;font:900 clamp(26px,9vw,40px)/1 system-ui!important;color:#fff!important;text-shadow:0 3px 0 #a85d00,0 0 2px #a85d00!important;-webkit-text-stroke:1.5px #a85d00}
+#stage #roll .dd{display:flex;gap:8px}
+#stage #roll .mini{width:30px;height:30px;border-radius:8px;transform:rotate(-12deg)}#stage #roll .mini+.mini{transform:rotate(14deg)}
+#stage #roll .mini::after{font-size:17px;-webkit-text-stroke:0;text-shadow:none}
+#stage #roll:disabled{opacity:1;filter:saturate(.85)}
+#stage #roll::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.7) 50%,transparent 65%);background-size:250% 100%;animation:mmShine 2.6s ease-in-out infinite}
+@keyframes mmShine{0%{background-position:150% 0}60%,100%{background-position:-60% 0}}
+#mmTotal{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%);z-index:5;padding:6px 16px;border-radius:999px;background:linear-gradient(#fff6c4,#ffd84a);color:#5a2d00;font:900 20px system-ui;border:2px solid #fff;box-shadow:0 3px 0 #b06a00;display:none}
+#mmTotal.on{display:block}
